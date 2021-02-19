@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">OpenBlocks</string>
+    <string name="current_version">1.0-beta</string>
 </resources>

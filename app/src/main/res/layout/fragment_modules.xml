@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingTop="?attr/actionBarSize"
     tools:context=".ui.modules.ModulesFragment">
 
     <TextView
@@ -28,6 +29,8 @@
         android:clickable="true"
         android:src="@drawable/ic_import"
         android:elevation="8dp"
+        app:backgroundTint="@color/colorAccent"
+        app:tint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

@@ -4,8 +4,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp"
-    >
+    android:padding="10dp">
 
     <ImageView
         android:id="@+id/project_icon"
@@ -21,8 +20,6 @@
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:textSize="14dp"
-        android:text="Project title"
-        />
-
+        android:text="Project title" />
 
 </LinearLayout>

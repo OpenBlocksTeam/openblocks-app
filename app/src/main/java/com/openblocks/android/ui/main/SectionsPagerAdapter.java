@@ -10,6 +10,8 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.openblocks.android.R;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
  * one of the sections/tabs/pages.
@@ -17,7 +19,7 @@ import com.openblocks.android.R;
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @StringRes
-    private static final int[] TAB_TITLES = new int[]{R.string.tab_text_projects, R.string.tab_text_modules};
+    private static final int[] TAB_TITLES = new int[] {R.string.tab_text_projects, R.string.tab_text_modules};
     private final Context mContext;
 
     public SectionsPagerAdapter(Context context, FragmentManager fm) {
@@ -25,11 +27,21 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         mContext = context;
     }
 
+    @NotNull
     @Override
     public Fragment getItem(int position) {
         // getItem is called to instantiate the fragment for the given page.
-        // Return a PlaceholderFragment (defined as a static inner class below).
-        return PlaceholderFragment.newInstance(position + 1);
+        switch (position) {
+            case 0:
+                // Projects
+                return ProjectsFragment.newInstance();
+            case 1:
+                // Modules
+                return ModulesFragment.newInstance();
+            default:
+                // Unknown, return an empty fragment instead
+                return new Fragment();
+        }
     }
 
     @Nullable
@@ -40,7 +52,6 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        // Show 2 total pages.
-        return 2;
+        return TAB_TITLES.length;
     }
 }

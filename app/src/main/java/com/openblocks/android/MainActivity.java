@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar); //Bofa waisted 20 minutes on this hidepain
-
         drawer = findViewById(R.id.drawer_layout);
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
@@ -49,12 +48,10 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "New Hidepain", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
-
-
     }
 
     @Override

@@ -82,6 +82,11 @@ public class ModulesRecyclerViewAdapter extends RecyclerView.Adapter<ModulesRecy
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            name = itemView.findViewById(R.id.module_title);
+            description = itemView.findViewById(R.id.module_description);
+            module_type = itemView.findViewById(R.id.module_type);
+
+            body = itemView.findViewById(R.id.module_body);
         }
     }
 }

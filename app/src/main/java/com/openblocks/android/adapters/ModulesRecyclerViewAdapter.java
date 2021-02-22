@@ -75,6 +75,7 @@ public class ModulesRecyclerViewAdapter extends RecyclerView.Adapter<ModulesRecy
 
         TextView name;
         TextView description;
+        TextView active_status;
 
         ImageView module_type;
 
@@ -85,6 +86,7 @@ public class ModulesRecyclerViewAdapter extends RecyclerView.Adapter<ModulesRecy
             name = itemView.findViewById(R.id.module_title);
             description = itemView.findViewById(R.id.module_description);
             module_type = itemView.findViewById(R.id.module_type);
+            active_status = itemView.findViewById(R.id.module_active_status);
 
             body = itemView.findViewById(R.id.module_body);
         }

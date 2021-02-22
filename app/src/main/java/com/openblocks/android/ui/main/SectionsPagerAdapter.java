@@ -9,8 +9,13 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.openblocks.android.R;
+import com.openblocks.android.modman.models.Module;
+import com.openblocks.moduleinterface.OpenBlocksModule;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
@@ -22,9 +27,12 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     private static final int[] TAB_TITLES = new int[] {R.string.tab_text_projects, R.string.tab_text_modules};
     private final Context mContext;
 
-    public SectionsPagerAdapter(Context context, FragmentManager fm) {
+    private final HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules;
+
+    public SectionsPagerAdapter(Context context, FragmentManager fm, HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules) {
         super(fm);
         mContext = context;
+        this.modules = modules;
     }
 
     @NotNull
@@ -37,7 +45,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
                 return ProjectsFragment.newInstance();
             case 1:
                 // Modules
-                return ModulesFragment.newInstance();
+                return ModulesFragment.newInstance(modules);
             default:
                 // Unknown, return an empty fragment instead
                 return new Fragment();

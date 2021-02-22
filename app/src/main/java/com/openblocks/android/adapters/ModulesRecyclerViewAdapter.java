@@ -14,15 +14,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.openblocks.android.R;
 import com.openblocks.android.modman.models.Module;
+import com.openblocks.moduleinterface.OpenBlocksModule;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ModulesRecyclerViewAdapter extends RecyclerView.Adapter<ModulesRecyclerViewAdapter.ViewHolder> {
     private static final String TAG = "ModuleRVAdapter";
 
     // Should be the database's commit objects
-    private ArrayList<Module> datas = new ArrayList<>();
+    private HashMap<OpenBlocksModule.Type, ArrayList<Module>> data = new HashMap<>();
     // final private Activity activity;
     WeakReference<Activity> activity;
 
@@ -30,13 +32,13 @@ public class ModulesRecyclerViewAdapter extends RecyclerView.Adapter<ModulesRecy
         this.activity = new WeakReference<>(activity);
     }
 
-    public ModulesRecyclerViewAdapter(ArrayList<Module> datas, Activity activity) {
-        this.datas = datas;
+    public ModulesRecyclerViewAdapter(HashMap<OpenBlocksModule.Type, ArrayList<Module>> data, Activity activity) {
+        this.data = data;
         this.activity = new WeakReference<>(activity);
     }
 
-    public void updateView(ArrayList<Module> datas) {
-        this.datas = datas;
+    public void updateView(HashMap<OpenBlocksModule.Type, ArrayList<Module>> data) {
+        this.data = data;
         notifyDataSetChanged();
     }
 
@@ -54,13 +56,19 @@ public class ModulesRecyclerViewAdapter extends RecyclerView.Adapter<ModulesRecy
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         Log.d(TAG, "onBindViewHolder: called.");
-        Module item = datas.get(position);
+        // Module item = datas.get(position);
 
     }
 
     @Override
     public int getItemCount() {
-        return datas.size();
+        int sum = 0;
+
+        for (ArrayList<Module> modules: data.values()) {
+            sum += modules.size();
+        }
+
+        return sum;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

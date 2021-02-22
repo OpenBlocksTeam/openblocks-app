@@ -1,18 +1,25 @@
 package com.openblocks.android.ui.main;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.openblocks.android.R;
+import com.openblocks.android.adapters.ModulesRecyclerViewAdapter;
+import com.openblocks.android.modman.models.Module;
+import com.openblocks.moduleinterface.OpenBlocksModule;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -23,10 +30,12 @@ public class ModulesFragment extends Fragment {
 
     private ModulesViewModel pageViewModel;
 
-    public static ModulesFragment newInstance() {
+    public static ModulesFragment newInstance(HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules) {
         ModulesFragment fragment = new ModulesFragment();
+
         Bundle bundle = new Bundle();
-        bundle.putInt(ARG_SECTION_NUMBER, 1);
+        bundle.putParcelable(ARG_SECTION_NUMBER, (Parcelable) modules);
+
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -34,26 +43,35 @@ public class ModulesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         pageViewModel = new ViewModelProvider(this).get(ModulesViewModel.class);
-        int index = 1;
+
+        HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules = new HashMap<>();
         if (getArguments() != null) {
-            index = getArguments().getInt(ARG_SECTION_NUMBER);
+            modules = getArguments().getParcelable(ARG_SECTION_NUMBER);
         }
-        pageViewModel.setIndex(index);
+
+        pageViewModel.setModules(modules);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_modules, container, false);
-        /*
-        final TextView textView = root.findViewById(R.id.section_label);
-        pageViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
-        */
+
+        final RecyclerView modules_list = root.findViewById(R.id.modules_list);
+
+        // StaggeredGridLayoutManager with 3 rows and horizontal orientation
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(3, LinearLayoutManager.HORIZONTAL);
+        modules_list.setLayoutManager(staggeredGridLayoutManager);
+
+        final ModulesRecyclerViewAdapter adapter = new ModulesRecyclerViewAdapter(getActivity());
+
+        // Set the adapter
+        modules_list.setAdapter(adapter);
+
+        // Update the adapter if the variable "modules" is changed
+        pageViewModel.getModules().observe(getViewLifecycleOwner(), adapter::updateView);
+
         return root;
     }
 }

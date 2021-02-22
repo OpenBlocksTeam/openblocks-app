@@ -125,4 +125,8 @@ public class ModuleManager {
             } catch (JSONException ignored) { } // We're gonna ignore the error, and go on
         }
     }
+
+    public HashMap<OpenBlocksModule.Type, ArrayList<Module>> getModules() {
+        return modules;
+    }
 }

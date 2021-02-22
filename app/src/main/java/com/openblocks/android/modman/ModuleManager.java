@@ -32,7 +32,7 @@ public class ModuleManager {
         return single_instance;
     }
 
-    public void load_modules(Context context) throws IOException, JSONException {
+    public void load_modules(Context context) throws IOException, ModuleJsonCorruptedException {
         // Modules are stored on the internal directory /modules/
         File modules_directory = new File(context.getFilesDir(), "modules");
 
@@ -51,6 +51,11 @@ public class ModuleManager {
 
         /* modules.json should be something like this:
          * {
+         *   "active_modules": {
+         *     "PROJECT_MANAGER": "IyxanProjectManager.jar",
+         *     "": "BOFACompiler",
+         *     ""
+         *   },
          *   "modules": {
          *     "IyxanProjectManager.jar": {
          *       "name": "IyxanProjectManager",
@@ -72,7 +77,13 @@ public class ModuleManager {
         // Loop per files, extract their information, and add them to the modules HashMap<ArrayList>
         for (File module: modules_directory.listFiles()) {
             if (module.getName().equals("modules.json")) {
-                modules_information = new JSONObject(FileHelper.readFile(module));
+
+                try {
+                    modules_information = new JSONObject(FileHelper.readFile(module));
+                } catch (JSONException e) {
+                    throw new ModuleJsonCorruptedException(e.getMessage());
+                }
+
             } else {
                 // This is a jar file
                 jar_files.add(new Pair<>(module.getName(), module));
@@ -86,48 +97,32 @@ public class ModuleManager {
 
         // Loop per every jar files
         for (Pair<String, File> jar_file : jar_files) {
-            // Get the module info from the modules.json
-            JSONObject current_module_info = modules_information.getJSONObject(jar_file.first);
+            try {
+                // Get the module info from the modules.json
+                JSONObject current_module_info = modules_information.getJSONObject(jar_file.first);
 
-            // Get the module type
-            OpenBlocksModule.Type module_type;
+                // Get the module type
+                OpenBlocksModule.Type module_type = OpenBlocksModule.Type.valueOf(current_module_info.getString("type"));
 
-            if        (current_module_info.getString("type").equals("PROJECT_MANAGER")) {
-                module_type = OpenBlocksModule.Type.PROJECT_MANAGER;
+                // Check if the arraylist is already initialized
+                if (!modules.containsKey(module_type)) {
+                    // Oop, it haven't, let's initialize it
+                    modules.put(module_type, new ArrayList<>());
+                }
 
-            } else if (current_module_info.getString("type").equals("PROJECT_PARSER")) {
-                module_type = OpenBlocksModule.Type.PROJECT_PARSER;
+                // ohk, add the module
+                Objects.requireNonNull(
+                        modules.get(module_type)
+                ).add(new Module(
+                        current_module_info.getString("name"),
+                        current_module_info.getString("description"),
+                        current_module_info.getString("classpath"),
+                        current_module_info.getInt("version"),
+                        current_module_info.getInt("lib_version"),
+                        jar_file.second
+                ));
 
-            } else if (current_module_info.getString("type").equals("PROJECT_LAYOUT_GUI")) {
-                module_type = OpenBlocksModule.Type.PROJECT_LAYOUT_GUI;
-
-            } else if (current_module_info.getString("type").equals("PROJECT_CODE_GUI")) {
-                module_type = OpenBlocksModule.Type.PROJECT_CODE_GUI;
-
-            } else if (current_module_info.getString("type").equals("PROJECT_COMPILER")) {
-                module_type = OpenBlocksModule.Type.PROJECT_COMPILER;
-
-            } else {
-                continue;
-            }
-
-            // Check if the arraylist is already initialized
-            if (!modules.containsKey(module_type)) {
-                // Oop, it haven't, let's initialize it
-                modules.put(module_type, new ArrayList<>());
-            }
-
-            // ohk, add the module
-            Objects.requireNonNull(
-                modules.get(module_type)
-            ).add(new Module(
-                    current_module_info.getString("name"),
-                    current_module_info.getString("description"),
-                    current_module_info.getString("classpath"),
-                    current_module_info.getInt("version"),
-                    current_module_info.getInt("lib_version"),
-                    jar_file.second
-            ));
+            } catch (JSONException ignored) { } // We're gonna ignore the error, and go on
         }
     }
 }

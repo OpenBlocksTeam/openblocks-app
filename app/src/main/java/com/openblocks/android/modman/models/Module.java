@@ -1,14 +1,6 @@
 package com.openblocks.android.modman.models;
 
-import android.util.Pair;
-
-import com.openblocks.moduleinterface.models.OpenBlocksFile;
-
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import dalvik.system.DexClassLoader;
 
 public class Module {
     public String name;

@@ -12,11 +12,4 @@ OpenBlocks is a community-driven modular android application that can create and
 #### For Sketchware users...
 OpenBlocks is basically an app that you can mod easily! It's open source, change what you want, contribute what you want, use what you want! It's also modular, meaning you can create modules to do something else, For example, I want to add a TextInputLayout to my Layout editor, just download an already-existing module that adds TextInputLayout to the layout editor, and boom! That's it, No need to mod sketchware. And if you want to create a module, we have already made an interface for that, check out [openblocks-module-communicator](https://github.com/OpenBlocksTeam/openblocks-module-communicator), the guide is also there, check out it's [wiki page](https://github.com/OpenBlocksTeam/openblocks-module-communicator/wiki/Initial-Idea).
 
-## Important: Cloning this repository
-This repository contains the [openblocks-module-interface](https://github.com/OpenBlocksTeam/openblocks-module-interface) [submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules), which is not going to be cloned automatically when you clone it. After cloning, you should do:
-```
-git submodule update --init --recursive
-```
-This command will update it's submodules.
-
 Happy Coding!

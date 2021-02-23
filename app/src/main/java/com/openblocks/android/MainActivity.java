@@ -1,5 +1,6 @@
 package com.openblocks.android;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -18,11 +19,13 @@ import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.android.ui.main.SectionsPagerAdapter;
 
+import java.io.File;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawer;
+    private SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +35,29 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar); // BOFA waisted 20 minutes on this
         drawer = findViewById(R.id.drawer_layout);
+
+        // MODULES STUFF ===========================================================================
+
+        // Get the SharedPreferences
+        sp = getSharedPreferences("data", MODE_PRIVATE);
+
+        // Check if this is the first time the user has opened this app
+        if (sp.getBoolean("first_time", false)) {
+            // Oo, first time huh, let's initialize the modules folder, and extract our default modules there
+            try {
+                // Initialize the modules folder
+                File modules_folder = new File(getFilesDir(), "/modules/");
+                modules_folder.mkdir();
+
+                // Initialize the modules.json file
+                new File(modules_folder, "modules.json").createNewFile();
+
+                // TODO: EXTRACT / DOWNLOAD DEFAULT MODULES
+            } catch (IOException e) {
+                Toast.makeText(this, "Error while initializing modules: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                finish();
+            }
+        }
 
         // TODO: SHOW A LOADING BAR / SCREEN WHEN WE'RE LOADING MODULES
         ModuleManager moduleManager = ModuleManager.getInstance();
@@ -49,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
 
             Toast.makeText(this, "modules.json is corrupted: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+
+        // MODULES STUFF ===========================================================================
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager(), moduleManager.getModules());
 

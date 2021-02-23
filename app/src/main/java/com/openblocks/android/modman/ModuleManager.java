@@ -22,6 +22,9 @@ public class ModuleManager {
     // HashMap<ModuleType: OpenBlocksModule.Type, Modules: ArrayList<Module>>
     HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules;
 
+    // NOTE: modules in active_modules also exists in the variable modules
+    HashMap<OpenBlocksModule.Type, Module> active_modules;
+
     private ModuleManager() { }
 
     // Yes this is a singleton class
@@ -37,6 +40,7 @@ public class ModuleManager {
         File modules_directory = new File(context.getFilesDir(), "modules");
 
         JSONObject modules_information = null;
+        JSONObject active_modules_json = null;
         ArrayList<Pair<String, File>> jar_files = new ArrayList<>();
 
         /* The module folder should contain something like this:
@@ -79,7 +83,10 @@ public class ModuleManager {
             if (module.getName().equals("modules.json")) {
 
                 try {
-                    modules_information = new JSONObject(FileHelper.readFile(module));
+                    JSONObject modules_json = new JSONObject(FileHelper.readFile(module));
+
+                    active_modules_json = modules_json.getJSONObject("active_modules");
+                    modules_information = modules_json.getJSONObject("modules");
                 } catch (JSONException e) {
                     throw new ModuleJsonCorruptedException(e.getMessage());
                 }
@@ -98,8 +105,10 @@ public class ModuleManager {
         // Loop per every jar files
         for (Pair<String, File> jar_file : jar_files) {
             try {
-                // Get the module info from the modules.json
-                JSONObject current_module_info = modules_information.getJSONObject(jar_file.first);
+                String filename = jar_file.first;
+
+                // Get the module info from the modules.json by it's name
+                JSONObject current_module_info = modules_information.getJSONObject(filename);
 
                 // Get the module type
                 OpenBlocksModule.Type module_type = OpenBlocksModule.Type.valueOf(current_module_info.getString("type"));
@@ -110,17 +119,25 @@ public class ModuleManager {
                     modules.put(module_type, new ArrayList<>());
                 }
 
-                // ohk, add the module
-                Objects.requireNonNull(
-                        modules.get(module_type)
-                ).add(new Module(
+                Module module = new Module(
                         current_module_info.getString("name"),
                         current_module_info.getString("description"),
                         current_module_info.getString("classpath"),
                         current_module_info.getInt("version"),
                         current_module_info.getInt("lib_version"),
                         jar_file.second
-                ));
+                );
+
+                // ohk, add the module
+                Objects.requireNonNull(
+                        modules.get(module_type)
+                ).add(module);
+
+                // Check if this module exists in the active modules list
+                if (active_modules_json.getString(module_type.toString()).equals(filename)) {
+                    // Alright, this module is active, add it to this active_modules hashmap
+                    active_modules.put(module_type, module);
+                }
 
             } catch (JSONException ignored) { } // We're gonna ignore the error, and go on
         }

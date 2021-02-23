@@ -57,8 +57,8 @@ public class ModuleManager {
          * {
          *   "active_modules": {
          *     "PROJECT_MANAGER": "IyxanProjectManager.jar",
-         *     "": "BOFACompiler",
-         *     ""
+         *     "PROJECT_COMPILER": "BOFACompiler",
+         *     ...
          *   },
          *   "modules": {
          *     "IyxanProjectManager.jar": {

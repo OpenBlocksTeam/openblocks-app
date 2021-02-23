@@ -35,7 +35,6 @@ import java.io.UnsupportedEncodingException;
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawer;
-    private SharedPreferences sp;
 
     SectionsPagerAdapter sectionsPagerAdapter;
 
@@ -51,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         // MODULES STUFF ===========================================================================
 
         // Get the SharedPreferences
-        sp = getSharedPreferences("data", MODE_PRIVATE);
+        SharedPreferences sp = getSharedPreferences("data", MODE_PRIVATE);
 
         // Check if this is the first time the user has opened this app
         if (sp.getBoolean("first_time", false)) {

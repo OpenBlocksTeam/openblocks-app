@@ -40,8 +40,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0'
 
-    // "Import" the openblock's module interface located under ../libs
-    implementation 'com.openblocks.moduleinterface:1.0.0@aar'
+    implementation files("../libs/module-interface.aar")
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

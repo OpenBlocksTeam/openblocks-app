@@ -1,9 +1,13 @@
 package com.openblocks.android;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -19,13 +23,21 @@ import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.android.ui.main.SectionsPagerAdapter;
 
+import org.json.JSONException;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawer;
     private SharedPreferences sp;
+
+    SectionsPagerAdapter sectionsPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         // MODULES STUFF ===========================================================================
 
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager(), moduleManager.getModules());
+        sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager(), moduleManager.getModules());
 
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
@@ -102,6 +114,50 @@ public class MainActivity extends AppCompatActivity {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+        }
+    }
+
+    final int IMPORT_MODULE_REQUEST_CODE = 10;
+
+    // When user clicked the "import" button (in fragment_modules)
+    public void import_module(View view) {
+        // Use SAF to pick a zip file
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT)
+                            .addCategory(Intent.CATEGORY_OPENABLE)
+                            .setType("application/zip");
+
+        startActivityForResult(intent, IMPORT_MODULE_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_CANCELED)
+            return;
+
+        if (requestCode == IMPORT_MODULE_REQUEST_CODE) {
+            // Get the URI
+            Uri uri = data.getData();
+            Module module;
+
+            // Then import the module
+            try {
+                module = ModuleManager.getInstance().importModule(this, uri.getPath());
+            } catch (IOException e) {
+                Toast.makeText(this, "Error while reading module: " + e.getMessage(), Toast.LENGTH_LONG).show();
+
+                return;
+            } catch (JSONException e) {
+                Toast.makeText(this, "Module is corrupted: " + e.getMessage(), Toast.LENGTH_LONG).show();
+
+                return;
+            }
+
+            Toast.makeText(this, "Module " + module.name + " has successfully imported, restarting activity", Toast.LENGTH_SHORT).show();
+
+            // Ok then refresh our activity
+            recreate();
         }
     }
 }

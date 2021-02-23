@@ -10,11 +10,18 @@ import com.openblocks.moduleinterface.OpenBlocksModule;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class ModuleManager {
     private static ModuleManager single_instance = null;
@@ -145,5 +152,89 @@ public class ModuleManager {
 
     public HashMap<OpenBlocksModule.Type, ArrayList<Module>> getModules() {
         return modules;
+    }
+
+    public Module importModule(Context context, String path) throws IOException, JSONException {
+        Module module = new Module();
+        OpenBlocksModule.Type module_type = null;
+        File modules_dir = new File(context.getFilesDir(), "modules");
+        File jar_file = null;
+
+        FileInputStream fis;
+
+        // Buffer for read and write data to file
+        byte[] buffer = new byte[1024];
+
+        fis = new FileInputStream(path);
+
+        ZipInputStream zis = new ZipInputStream(fis);
+        ZipEntry ze = zis.getNextEntry();
+
+        while (ze != null) {
+            String fileName = ze.getName();
+
+            if (fileName.matches("^\\w+\\.jar$")) {
+                jar_file = new File(modules_dir, ze.getName());
+                FileOutputStream fos = new FileOutputStream(jar_file);
+
+                int len;
+                while ((len = zis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len);
+                }
+
+                fos.close();
+            } else if (fileName.equals("openblocks-module-manifest.json")) {
+                // Source: https://stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
+                String file_data;
+                ByteArrayOutputStream result = new ByteArrayOutputStream();
+
+                int length;
+                while ((length = zis.read(buffer)) != -1) {
+                    result.write(buffer, 0, length);
+                }
+
+                file_data = result.toString("UTF-8");
+
+                JSONObject manifest = new JSONObject(file_data);
+                module.name = manifest.getString("name");
+                module.description = manifest.getString("description");
+                module.classpath = manifest.getString("classpath");
+                module.version = manifest.getInt("version");
+                module.lib_version = manifest.getInt("lib_version");
+
+                module_type = OpenBlocksModule.Type.valueOf(manifest.getString("type"));
+            }
+
+            // Close this ZipEntry
+            zis.closeEntry();
+
+            // Ight, next!
+            ze = zis.getNextEntry();
+        }
+
+        // Close last ZipEntry
+        zis.closeEntry();
+        zis.close();
+        fis.close();
+
+        // Check if there isn't any jar file
+        if (jar_file == null) {
+            throw new IOException("Jar file doesn't exists");
+        }
+
+        // ok, let's put the jar_file here
+        module.jar_file = jar_file;
+
+        // Check if this module_type hasn't been initialized
+        if (!modules.containsKey(module_type)) {
+            modules.put(module_type, new ArrayList<>());
+        }
+
+        // alright, let's put it on our modules list
+        modules .get(module_type)
+                .add(module);
+
+        // Ight we can return the module
+        return module;
     }
 }

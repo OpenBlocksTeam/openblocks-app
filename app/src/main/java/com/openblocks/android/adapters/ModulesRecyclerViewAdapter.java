@@ -62,6 +62,8 @@ public class ModulesRecyclerViewAdapter extends RecyclerView.Adapter<ModulesRecy
 
     @Override
     public int getItemCount() {
+        if (data == null) return 0;
+        
         int sum = 0;
 
         for (ArrayList<Module> modules: data.values()) {

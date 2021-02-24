@@ -5,6 +5,7 @@ import android.util.Pair;
 
 import com.openblocks.android.helpers.FileHelper;
 import com.openblocks.android.modman.models.Module;
+import com.openblocks.android.modman.models.ModuleIsActiveException;
 import com.openblocks.moduleinterface.OpenBlocksModule;
 
 import org.json.JSONException;
@@ -236,5 +237,15 @@ public class ModuleManager {
 
         // Ight we can return the module
         return module;
+    }
+    
+    public boolean removeModule(OpenBlocksModule.Type module_type, Module module) throws ModuleIsActiveException {
+        if (!modules.containsKey(module_type))
+            throw new IllegalArgumentException("Module type " + module_type.toString() + " doesn't exist in the modules list");
+
+        if (active_modules.get(module_type).equals(module))
+            throw new ModuleIsActiveException("You cannot remove an activated module");
+
+        return modules.get(module_type).remove(module);
     }
 }

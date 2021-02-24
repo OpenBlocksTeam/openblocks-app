@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">OpenBlocks</string>
+    <string name="current_version">1.0-beta</string>
+    <string name="title_activity_main2">MainActivity</string>
+    <string name="title_projects">Projects</string>
+    <string name="title_modules">Modules</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+    <string name="tab_text_projects">Projects</string>
+    <string name="tab_text_modules">Modules</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="nav_header_description">Nav header desc</string>
+    <string name="nav_header_title">Nav header title</string>
+    <string name="nav_header_subtitle">Nav header subtitle</string>
+
+
+    <string name="menu_docs">Slideshow</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_about">About</string>
+    <string name="menu_discord">Discord</string>
+    <string name="menu_title_community">Community</string>
+
+
+</resources>

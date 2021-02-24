@@ -1,6 +1,7 @@
 # Built application files
 *.apk
-*.aar
+# This project contains the module-interface library's aar file
+# *.aar
 *.ap_
 *.aab
 

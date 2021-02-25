@@ -3,6 +3,7 @@ package com.openblocks.android;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -10,8 +11,10 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity {
@@ -22,6 +25,9 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewPager viewPager;
     private TabLayout tabLayout;
+
+    private FloatingActionButton fabProjects;
+    private FloatingActionButton fabModules;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +52,53 @@ public class MainActivity extends AppCompatActivity {
 
         viewPager.setAdapter(new FragmentAdapter(getApplicationContext(), getSupportFragmentManager(), 2));
         tabLayout.setupWithViewPager(viewPager);
+
+        // FABs
+        fabProjects = (FloatingActionButton) findViewById(R.id.fabProjects);
+        fabModules = (FloatingActionButton) findViewById(R.id.fabModules);
+
+        fabModules.hide();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            fabProjects.setTooltipText("New Project");
+            fabModules.setTooltipText("Add Module");
+        }
+
+        // Listeners
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int _position, float _positionOffset, int _positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int _position) {
+                if (_position == 0) {
+                    fabProjects.show();
+                    fabModules.hide();
+                }
+                else {
+                    fabProjects.hide();
+                    fabModules.show();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int _scrollState) {
+
+            }
+        });
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (_drawer.isDrawerOpen(GravityCompat.START)) {
+            _drawer.closeDrawer(GravityCompat.START);
+        }
+        else {
+            super.onBackPressed();
+        }
     }
 
     public class FragmentAdapter extends FragmentStatePagerAdapter {

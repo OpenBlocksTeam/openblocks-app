@@ -67,7 +67,17 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
             android:src="@drawable/ic_add_white"
-            app:backgroundTint="@color/colorAccent" />
+            app:backgroundTint="@color/colorAccent"
+            android:id="@+id/fabProjects" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_add_white"
+            app:backgroundTint="@color/colorAccent"
+            android:id="@+id/fabModules" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.navigation.NavigationView

@@ -25,6 +25,7 @@
                 android:foregroundTint="@color/colorOnPrimary"
                 android:theme="@style/AppTheme"
                 app:collapseIcon="@drawable/abc_vector_test"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
                 app:title="@string/app_name"
                 app:titleTextColor="@color/colorOnPrimary" />
 

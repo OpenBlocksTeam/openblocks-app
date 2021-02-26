@@ -37,6 +37,8 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.3.3'
     implementation 'androidx.preference:preference:1.1.1'
 
+    implementation files("../libs/module-interface.aar")
+
     testImplementation 'junit:junit:4.+'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

@@ -14,8 +14,10 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,13 +27,18 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.openblocks.android.modman.ModuleJsonCorruptedException;
 import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
+import com.openblocks.moduleinterface.OpenBlocksModule;
 
 import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton fabProjects;
     private FloatingActionButton fabModules;
+
+    private HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,11 +67,55 @@ public class MainActivity extends AppCompatActivity {
         _drawer.addDrawerListener(_toggle);
         _toggle.syncState();
 
+        // Load Modules ============================================================================
+
+        // Get the SharedPreferences
+        SharedPreferences sp = getSharedPreferences("data", MODE_PRIVATE);
+
+        // Check if this is the first time the user has opened this app
+        if (sp.getBoolean("first_time", false)) {
+            // Oo, first time huh, let's initialize the modules folder, and extract our default modules there
+            try {
+                // Initialize the modules folder
+                File modules_folder = new File(getFilesDir(), "/modules/");
+                modules_folder.mkdir();
+
+                // Initialize the modules.json file
+                new File(modules_folder, "modules.json").createNewFile();
+
+                // TODO: EXTRACT / DOWNLOAD DEFAULT MODULES
+            } catch (IOException e) {
+                Toast.makeText(this, "Error while initializing modules: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                finish();
+            }
+        }
+
+        // TODO: SHOW A LOADING BAR / SCREEN WHEN WE'RE LOADING MODULES
+        ModuleManager moduleManager = ModuleManager.getInstance();
+
+        // Load modules
+        try {
+            moduleManager.load_modules(this);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            Toast.makeText(this, "Error while reading modules: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        } catch (ModuleJsonCorruptedException e) {
+            e.printStackTrace();
+
+            Toast.makeText(this, "modules.json is corrupted: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
+        modules = moduleManager.getModules();
+
+        // Load Modules ============================================================================
+
         // View Pager
         ViewPager viewPager = findViewById(R.id.viewPager);
         TabLayout tabLayout = findViewById(R.id.tabLayout);
 
-        viewPager.setAdapter(new FragmentAdapter(getApplicationContext(), getSupportFragmentManager(), 2));
+        viewPager.setAdapter(new FragmentAdapter(modules, getApplicationContext(), getSupportFragmentManager(), 2));
         tabLayout.setupWithViewPager(viewPager);
 
         // FABs
@@ -160,8 +213,11 @@ public class MainActivity extends AppCompatActivity {
         Context context;
         int tabCount;
 
-        public FragmentAdapter(Context context, FragmentManager fm, int tabCount) {
+        HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules;
+
+        public FragmentAdapter(HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules, Context context, FragmentManager fm, int tabCount) {
             super(fm);
+            this.modules = modules;
             this.context = context;
             this.tabCount = tabCount;
         }
@@ -190,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
                 case 0:
                     return new ProjectsFragment();
                 case 1:
-                    return new ModulesFragment();
+                    return ModulesFragment.newInstance(modules);
                 default:
                     return new Fragment();
             }

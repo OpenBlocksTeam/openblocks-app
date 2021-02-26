@@ -63,22 +63,23 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabProjects"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
             android:src="@drawable/ic_add_white"
-            app:backgroundTint="@color/colorAccent"
-            android:id="@+id/fabProjects" />
+            app:backgroundTint="@color/colorAccent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabModules"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
             android:src="@drawable/ic_add_white"
-            app:backgroundTint="@color/colorAccent"
-            android:id="@+id/fabModules" />
+            android:onClick="fabModulesClicked"
+            app:backgroundTint="@color/colorAccent" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.navigation.NavigationView

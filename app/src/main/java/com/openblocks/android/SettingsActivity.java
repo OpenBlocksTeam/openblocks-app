@@ -9,8 +9,6 @@ import androidx.preference.PreferenceFragmentCompat;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private Toolbar _actionBar;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,8 +19,6 @@ public class SettingsActivity extends AppCompatActivity {
                     .replace(R.id.settings, new SettingsFragment())
                     .commit();
         }
-
-        _actionBar = (Toolbar) findViewById(R.id.toolBarSettings);
         
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {

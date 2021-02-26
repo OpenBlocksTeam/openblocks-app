@@ -1,6 +1,7 @@
 # Built application files
 *.apk
-*.aar
+# We have an external library, so we have to ignore ignore .aar
+# *.aar
 *.ap_
 *.aab
 

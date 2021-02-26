@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_docs"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="@string/menu_docs" />
+
+    <item
+        android:id="@+id/nav_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/menu_settings" />
+
+    <item
+        android:id="@+id/nav_about"
+        android:icon="@drawable/ic_about"
+        android:title="@string/menu_about" />
+
+    <item android:title="@string/menu_title_community">
+        <menu>
+            <item
+                android:id="@+id/nav_discord"
+                android:icon="@drawable/ic_about"
+                android:title="@string/menu_discord" />
+        </menu>
+    </item>
+
+</menu>
+

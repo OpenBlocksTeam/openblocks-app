@@ -35,9 +35,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Permission Stuff
-        ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE }, 69);
-
         // Main Part (ActionBar)
         Toolbar _actionBar = findViewById(R.id.toolBar);
         setSupportActionBar(_actionBar);
@@ -81,8 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 if (_position == 0) {
                     fabProjects.show();
                     fabModules.hide();
-                }
-                else {
+                } else {
                     fabProjects.hide();
                     fabModules.show();
                 }
@@ -104,19 +100,6 @@ public class MainActivity extends AppCompatActivity {
         else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        switch (requestCode) {
-            case 69: {
-                File openBlocksData = new File(Environment.getExternalStorageDirectory() + File.separator + ".OpenBlocks");
-                if (!openBlocksData.exists()) openBlocksData.mkdirs();
-            }
-        }
-
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     public static class FragmentAdapter extends FragmentStatePagerAdapter {

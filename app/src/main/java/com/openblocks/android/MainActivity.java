@@ -25,12 +25,7 @@ import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Toolbar _actionBar;
     private DrawerLayout _drawer;
-    private ActionBarDrawerToggle _toggle;
-
-    private ViewPager viewPager;
-    private TabLayout tabLayout;
 
     private FloatingActionButton fabProjects;
     private FloatingActionButton fabModules;
@@ -44,28 +39,28 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE }, 69);
 
         // Main Part (ActionBar)
-        _actionBar = (Toolbar) findViewById(R.id.toolBar);
+        Toolbar _actionBar = findViewById(R.id.toolBar);
         setSupportActionBar(_actionBar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         // Drawer Toggle
-        _drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        _toggle = new ActionBarDrawerToggle(MainActivity.this, _drawer, _actionBar, R.string.app_name, R.string.app_name);
+        _drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle _toggle = new ActionBarDrawerToggle(MainActivity.this, _drawer, _actionBar, R.string.app_name, R.string.app_name);
         _drawer.addDrawerListener(_toggle);
         _toggle.syncState();
 
         // View Pager
-        viewPager = (ViewPager) findViewById(R.id.viewPager);
-        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        ViewPager viewPager = findViewById(R.id.viewPager);
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
 
         viewPager.setAdapter(new FragmentAdapter(getApplicationContext(), getSupportFragmentManager(), 2));
         tabLayout.setupWithViewPager(viewPager);
 
         // FABs
-        fabProjects = (FloatingActionButton) findViewById(R.id.fabProjects);
-        fabModules = (FloatingActionButton) findViewById(R.id.fabModules);
+        fabProjects = findViewById(R.id.fabProjects);
+        fabModules = findViewById(R.id.fabModules);
 
         fabModules.hide();
 
@@ -124,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    public class FragmentAdapter extends FragmentStatePagerAdapter {
+    public static class FragmentAdapter extends FragmentStatePagerAdapter {
         Context context;
         int tabCount;
 
@@ -141,16 +136,27 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public CharSequence getPageTitle(int _position) {
-            if (_position == 0) return "Projects";
-            if (_position == 1) return "Modules";
-            else return null;
+            switch (_position) {
+                case 0:
+                    return "Projects";
+                case 1:
+                    return "Modules";
+                default:
+                    return null;
+            }
         }
 
+        @NonNull
         @Override
         public Fragment getItem(int _position) {
-            if (_position == 0) return new ProjectsFragment();
-            if (_position == 1) return new ModulesFragment();
-            else return null;
+            switch (_position) {
+                case 0:
+                    return new ProjectsFragment();
+                case 1:
+                    return new ModulesFragment();
+                default:
+                    return new Fragment();
+            }
         }
     }
 }

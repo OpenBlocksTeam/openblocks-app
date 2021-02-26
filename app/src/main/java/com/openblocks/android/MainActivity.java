@@ -14,19 +14,24 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.MenuItem;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
 import java.io.File;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private Toolbar _actionBar;
     private DrawerLayout _drawer;
+    private NavigationView _drawer_navView;
     private ActionBarDrawerToggle _toggle;
 
     private ViewPager viewPager;
@@ -50,11 +55,15 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        // Drawer Toggle
+        // Drawer Toggle & Drawer
         _drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        _drawer_navView = (NavigationView) findViewById(R.id.nav_view) ;
+
         _toggle = new ActionBarDrawerToggle(MainActivity.this, _drawer, _actionBar, R.string.app_name, R.string.app_name);
         _drawer.addDrawerListener(_toggle);
         _toggle.syncState();
+
+        _drawer_navView.setNavigationItemSelectedListener(this);
 
         // View Pager
         viewPager = (ViewPager) findViewById(R.id.viewPager);
@@ -122,6 +131,45 @@ public class MainActivity extends AppCompatActivity {
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        Intent i1 = new Intent();
+
+        switch (item.getItemId()) {
+            case R.id.home:
+                _drawer.closeDrawer(GravityCompat.START);
+                break;
+            case R.id.settings:
+                i1.setClass(MainActivity.this, SettingsActivity.class);
+                startActivity(i1);
+                break;
+            case R.id.about:
+                i1.setClass(MainActivity.this, AboutActivity.class);
+                startActivity(i1);
+                break;
+            case R.id.dc:
+                Intent i2 = new Intent();
+                i2.setAction(Intent.ACTION_VIEW);
+                i2.setData(Uri.parse("https://discord.gg/ESCfUBy26Z"));
+                startActivity(i2);
+                break;
+            case R.id.gh:
+                Intent i3 = new Intent();
+                i3.setAction(Intent.ACTION_VIEW);
+                i3.setData(Uri.parse("https://github.com/OpenBlocksTeam"));
+                startActivity(i3);
+                break;
+            case R.id.web:
+                Intent i4 = new Intent();
+                i4.setAction(Intent.ACTION_VIEW);
+                i4.setData(Uri.parse("https://openblocks.tk/"));
+                startActivity(i4);
+                break;
+        }
+
+        return false;
     }
 
     public class FragmentAdapter extends FragmentStatePagerAdapter {

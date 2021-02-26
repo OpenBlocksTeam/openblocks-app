@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/home"
         android:icon="@drawable/ic_home"
         android:title="Home" />
     <item
+        android:id="@+id/settings"
         android:icon="@drawable/ic_settings"
         android:title="Settings" />
     <item
+        android:id="@+id/about"
         android:icon="@drawable/ic_about"
         android:title="About" />
     <item android:title="Community">
         <menu>
             <item
+                android:id="@+id/dc"
                 android:icon="@drawable/ic_discord"
                 android:title="Discord" />
             <item
+                android:id="@+id/gh"
                 android:icon="@drawable/ic_github"
                 android:title="GitHub" />
             <item
+                android:id="@+id/web"
                 android:icon="@drawable/ic_website"
                 android:title="Website" />
         </menu>

@@ -1,162 +1,204 @@
 package com.openblocks.android;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Toast;
-
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.view.MenuItem;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
-import com.openblocks.android.modman.ModuleJsonCorruptedException;
-import com.openblocks.android.modman.ModuleManager;
-import com.openblocks.android.modman.models.Module;
-import com.openblocks.android.ui.main.SectionsPagerAdapter;
 
-import org.json.JSONException;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private DrawerLayout drawer;
+    private Toolbar _actionBar;
+    private DrawerLayout _drawer;
+    private NavigationView _drawer_navView;
+    private ActionBarDrawerToggle _toggle;
 
-    SectionsPagerAdapter sectionsPagerAdapter;
+    private ViewPager viewPager;
+    private TabLayout tabLayout;
+
+    private FloatingActionButton fabProjects;
+    private FloatingActionButton fabModules;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+  
+        // Permission Stuff
+        ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE }, 69);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar); // BOFA waisted 20 minutes on this
-        drawer = findViewById(R.id.drawer_layout);
+        // Main Part (ActionBar)
+        _actionBar = (Toolbar) findViewById(R.id.toolBar);
+        setSupportActionBar(_actionBar);
 
-        // MODULES STUFF ===========================================================================
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
-        // Get the SharedPreferences
-        SharedPreferences sp = getSharedPreferences("data", MODE_PRIVATE);
+        // Drawer Toggle & Drawer
+        _drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        _drawer_navView = (NavigationView) findViewById(R.id.nav_view) ;
 
-        // Check if this is the first time the user has opened this app
-        if (sp.getBoolean("first_time", false)) {
-            // Oo, first time huh, let's initialize the modules folder, and extract our default modules there
-            try {
-                // Initialize the modules folder
-                File modules_folder = new File(getFilesDir(), "/modules/");
-                modules_folder.mkdir();
+        _toggle = new ActionBarDrawerToggle(MainActivity.this, _drawer, _actionBar, R.string.app_name, R.string.app_name);
+        _drawer.addDrawerListener(_toggle);
+        _toggle.syncState();
 
-                // Initialize the modules.json file
-                new File(modules_folder, "modules.json").createNewFile();
+        _drawer_navView.setNavigationItemSelectedListener(this);
 
-                // TODO: EXTRACT / DOWNLOAD DEFAULT MODULES
-            } catch (IOException e) {
-                Toast.makeText(this, "Error while initializing modules: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                finish();
+        // View Pager
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
+        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+
+        viewPager.setAdapter(new FragmentAdapter(getApplicationContext(), getSupportFragmentManager(), 2));
+        tabLayout.setupWithViewPager(viewPager);
+
+        // FABs
+        fabProjects = (FloatingActionButton) findViewById(R.id.fabProjects);
+        fabModules = (FloatingActionButton) findViewById(R.id.fabModules);
+
+        fabModules.hide();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            fabProjects.setTooltipText("New Project");
+            fabModules.setTooltipText("Add Module");
+        }
+
+        // Listeners
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int _position, float _positionOffset, int _positionOffsetPixels) {
+
             }
-        }
 
-        // TODO: SHOW A LOADING BAR / SCREEN WHEN WE'RE LOADING MODULES
-        ModuleManager moduleManager = ModuleManager.getInstance();
+            @Override
+            public void onPageSelected(int _position) {
+                if (_position == 0) {
+                    fabProjects.show();
+                    fabModules.hide();
+                }
+                else {
+                    fabProjects.hide();
+                    fabModules.show();
+                }
+            }
 
-        // Load modules
-        try {
-            moduleManager.load_modules(this);
+            @Override
+            public void onPageScrollStateChanged(int _scrollState) {
 
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            Toast.makeText(this, "Error while reading modules: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        } catch (ModuleJsonCorruptedException e) {
-            e.printStackTrace();
-
-            Toast.makeText(this, "modules.json is corrupted: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-
-        // MODULES STUFF ===========================================================================
-
-        sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager(), moduleManager.getModules());
-
-        ViewPager viewPager = findViewById(R.id.view_pager);
-        viewPager.setAdapter(sectionsPagerAdapter);
-
-        TabLayout tabs = findViewById(R.id.tabs);
-        tabs.setupWithViewPager(viewPager);
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        fab.setOnClickListener(view -> Snackbar.make(view, "New Hidepain", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
+            }
+        });
     }
+
 
     @Override
     public void onBackPressed() {
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
+        if (_drawer.isDrawerOpen(GravityCompat.START)) {
+            _drawer.closeDrawer(GravityCompat.START);
+        }
+        else {
             super.onBackPressed();
         }
     }
 
-    final int IMPORT_MODULE_REQUEST_CODE = 10;
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-    // When user clicked the "import" button (in fragment_modules)
-    public void import_module(View view) {
-        // Use SAF to pick a zip file
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT)
-                            .addCategory(Intent.CATEGORY_OPENABLE)
-                            .setType("application/zip");
+        switch (requestCode) {
+            case 69: {
+                File openBlocksData = new File(Environment.getExternalStorageDirectory() + File.separator + ".OpenBlocks");
+                if (!openBlocksData.exists()) openBlocksData.mkdirs();
+            }
+        }
 
-        startActivityForResult(intent, IMPORT_MODULE_REQUEST_CODE);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        Intent i1 = new Intent();
 
-        if (resultCode == RESULT_CANCELED)
-            return;
+        switch (item.getItemId()) {
+            case R.id.home:
+                _drawer.closeDrawer(GravityCompat.START);
+                break;
+            case R.id.settings:
+                i1.setClass(MainActivity.this, SettingsActivity.class);
+                startActivity(i1);
+                break;
+            case R.id.about:
+                i1.setClass(MainActivity.this, AboutActivity.class);
+                startActivity(i1);
+                break;
+            case R.id.dc:
+                Intent i2 = new Intent();
+                i2.setAction(Intent.ACTION_VIEW);
+                i2.setData(Uri.parse("https://discord.gg/ESCfUBy26Z"));
+                startActivity(i2);
+                break;
+            case R.id.gh:
+                Intent i3 = new Intent();
+                i3.setAction(Intent.ACTION_VIEW);
+                i3.setData(Uri.parse("https://github.com/OpenBlocksTeam"));
+                startActivity(i3);
+                break;
+            case R.id.web:
+                Intent i4 = new Intent();
+                i4.setAction(Intent.ACTION_VIEW);
+                i4.setData(Uri.parse("https://openblocks.tk/"));
+                startActivity(i4);
+                break;
+        }
 
-        if (requestCode == IMPORT_MODULE_REQUEST_CODE) {
-            // Get the URI
-            Uri uri = data.getData();
-            Module module;
+        return false;
+    }
 
-            // Then import the module
-            try {
-                module = ModuleManager.getInstance().importModule(this, uri.getPath());
-            } catch (IOException e) {
-                Toast.makeText(this, "Error while reading module: " + e.getMessage(), Toast.LENGTH_LONG).show();
+    public class FragmentAdapter extends FragmentStatePagerAdapter {
+        Context context;
+        int tabCount;
 
-                return;
-            } catch (JSONException e) {
-                Toast.makeText(this, "Module is corrupted: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        public FragmentAdapter(Context context, FragmentManager fm, int tabCount) {
+            super(fm);
+            this.context = context;
+            this.tabCount = tabCount;
+        }
 
-                return;
-            }
+        @Override
+        public int getCount(){
+            return tabCount;
+        }
 
-            Toast.makeText(this, "Module " + module.name + " has successfully imported, restarting activity", Toast.LENGTH_SHORT).show();
+        @Override
+        public CharSequence getPageTitle(int _position) {
+            if (_position == 0) return "Projects";
+            if (_position == 1) return "Modules";
+            else return null;
+        }
 
-            // Ok then refresh our activity
-            recreate();
+        @Override
+        public Fragment getItem(int _position) {
+            if (_position == 0) return new ProjectsFragment();
+            if (_position == 1) return new ModulesFragment();
+            else return null;
         }
     }
 }

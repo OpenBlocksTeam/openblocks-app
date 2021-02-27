@@ -6,6 +6,7 @@
     <color name="colorControlHighlight">#2AE91E63</color>
     <color name="colorControlNormal">#E91E63</color>
 
-    <color name="colorPrimaryText">#FFFFFF</color>
-    <color name="colorSecondaryText">#C5C5C5</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorOnAccent">#FFFFFF</color>
+    <color name="colorOnBackground">#000000</color>
 </resources>

@@ -1,0 +1,36 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="Theme">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="dark_mode"
+            android:title="Dark Mode" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Other">
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="check_box_preference_1"
+            android:title="Check box preference" />
+        <EditTextPreference
+            android:defaultValue="Default value"
+            android:key="edit_text_preference_1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Edit text preference" />
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@android:array/emailAddressTypes"
+            android:entryValues="@android:array/emailAddressTypes"
+            android:key="list_preference_1"
+            android:title="List preference" />
+        <MultiSelectListPreference
+            android:defaultValue="@android:array/imProtocols"
+            android:entries="@android:array/imProtocols"
+            android:entryValues="@android:array/imProtocols"
+            android:key="multi_select_list_preference_1"
+            android:title="Multi select list preference" />
+    </PreferenceCategory>
+</PreferenceScreen>

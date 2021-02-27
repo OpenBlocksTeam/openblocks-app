@@ -217,34 +217,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Intent intent = new Intent();
 
-        switch (item.getItemId()) {
-            case R.id.home:
-                _drawer.closeDrawer(GravityCompat.START);
+        int itemId = item.getItemId();
 
-                return false;
-            case R.id.settings:
-                intent.setClass(MainActivity.this, SettingsActivity.class);
+        if (itemId == R.id.home) {
+            _drawer.closeDrawer(GravityCompat.START);
+            return false;
 
-                break;
-            case R.id.about:
-                intent.setClass(MainActivity.this, AboutActivity.class);
+        } else if (itemId == R.id.settings) {
+            intent.setClass(MainActivity.this, SettingsActivity.class);
 
-                break;
-            case R.id.dc:
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("https://discord.gg/ESCfUBy26Z"));
+        } else if (itemId == R.id.about) {
+            intent.setClass(MainActivity.this, AboutActivity.class);
 
-                break;
-            case R.id.gh:
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("https://github.com/OpenBlocksTeam"));
+        } else if (itemId == R.id.dc) {
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://discord.gg/ESCfUBy26Z"));
 
-                break;
-            case R.id.web:
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("https://openblocks.tk/"));
+        } else if (itemId == R.id.gh) {
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://github.com/OpenBlocksTeam"));
 
-                break;
+        } else if (itemId == R.id.web) {
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://openblocks.tk/"));
         }
 
         startActivity(intent);

@@ -7,9 +7,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -27,6 +29,8 @@ import com.openblocks.android.modman.ModuleJsonCorruptedException;
 import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.moduleinterface.OpenBlocksModule;
+
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
@@ -153,6 +157,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
+    }
+
+    final int IMPORT_MODULE_REQUEST_CODE = 1;
+
+    // When user clicked the "import" button
+    public void fabModulesClicked(View view) {
+        // Use SAF to pick a zip file, we ain't messing around with scoped storage
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT)
+                .addCategory(Intent.CATEGORY_OPENABLE)
+                .setType("application/zip");
+
+        startActivityForResult(intent, IMPORT_MODULE_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_CANCELED || data == null)
+            return;
+
+        if (requestCode == IMPORT_MODULE_REQUEST_CODE) {
+            // Get the URI
+            Uri uri = data.getData();
+            Module module;
+
+            // Then import the module
+            try {
+                module = ModuleManager.getInstance().importModule(this, uri.getPath());
+            } catch (IOException e) {
+                Toast.makeText(this, "Error while reading module: " + e.getMessage(), Toast.LENGTH_LONG).show();
+
+                return;
+            } catch (JSONException e) {
+                Toast.makeText(this, "Module is corrupted: " + e.getMessage(), Toast.LENGTH_LONG).show();
+
+                return;
+            }
+
+            Toast.makeText(this, "Module " + module.name + " has successfully imported, restarting activity", Toast.LENGTH_SHORT).show();
+
+            // Ok then refresh our activity
+            recreate();
+        }
     }
 
 

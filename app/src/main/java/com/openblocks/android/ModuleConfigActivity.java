@@ -3,12 +3,15 @@ package com.openblocks.android;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.openblocks.android.adapters.ConfigRecyclerViewAdapter;
 import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.moduleinterface.OpenBlocksModule;
@@ -82,7 +85,11 @@ public class ModuleConfigActivity extends AppCompatActivity {
     }
 
     private void loadConfig(OpenBlocksConfig config) {
+        RecyclerView rv = findViewById(R.id.module_config);
+        rv.setLayoutManager(new LinearLayoutManager(this));
 
+        ConfigRecyclerViewAdapter adapter = new ConfigRecyclerViewAdapter(config.getConfigs());
+        rv.setAdapter(adapter);
     }
 
     @Override

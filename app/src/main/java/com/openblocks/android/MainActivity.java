@@ -29,13 +29,7 @@ import java.io.File;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private Toolbar _actionBar;
     private DrawerLayout _drawer;
-    private NavigationView _drawer_navView;
-    private ActionBarDrawerToggle _toggle;
-
-    private ViewPager viewPager;
-    private TabLayout tabLayout;
 
     private FloatingActionButton fabProjects;
     private FloatingActionButton fabModules;
@@ -49,32 +43,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE }, 69);
 
         // Main Part (ActionBar)
-        _actionBar = (Toolbar) findViewById(R.id.toolBar);
+        Toolbar _actionBar = findViewById(R.id.toolBar);
         setSupportActionBar(_actionBar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         // Drawer Toggle & Drawer
-        _drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        _drawer_navView = (NavigationView) findViewById(R.id.nav_view) ;
+        _drawer = findViewById(R.id.drawer_layout);
+        NavigationView _drawer_navView = findViewById(R.id.nav_view);
 
-        _toggle = new ActionBarDrawerToggle(MainActivity.this, _drawer, _actionBar, R.string.app_name, R.string.app_name);
+        ActionBarDrawerToggle _toggle = new ActionBarDrawerToggle(MainActivity.this, _drawer, _actionBar, R.string.app_name, R.string.app_name);
         _drawer.addDrawerListener(_toggle);
         _toggle.syncState();
 
         _drawer_navView.setNavigationItemSelectedListener(this);
 
         // View Pager
-        viewPager = (ViewPager) findViewById(R.id.viewPager);
-        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        ViewPager viewPager = findViewById(R.id.viewPager);
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
 
         viewPager.setAdapter(new FragmentAdapter(getApplicationContext(), getSupportFragmentManager(), 2));
         tabLayout.setupWithViewPager(viewPager);
 
         // FABs
-        fabProjects = (FloatingActionButton) findViewById(R.id.fabProjects);
-        fabModules = (FloatingActionButton) findViewById(R.id.fabModules);
+        fabProjects = findViewById(R.id.fabProjects);
+        fabModules = findViewById(R.id.fabModules);
 
         fabModules.hide();
 
@@ -95,8 +89,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (_position == 0) {
                     fabProjects.show();
                     fabModules.hide();
-                }
-                else {
+                } else {
                     fabProjects.hide();
                     fabModules.show();
                 }
@@ -114,8 +107,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onBackPressed() {
         if (_drawer.isDrawerOpen(GravityCompat.START)) {
             _drawer.closeDrawer(GravityCompat.START);
-        }
-        else {
+        } else {
             super.onBackPressed();
         }
     }
@@ -135,44 +127,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        Intent i1 = new Intent();
+        Intent intent = new Intent();
 
         switch (item.getItemId()) {
             case R.id.home:
                 _drawer.closeDrawer(GravityCompat.START);
-                break;
+
+                return false;
             case R.id.settings:
-                i1.setClass(MainActivity.this, SettingsActivity.class);
-                startActivity(i1);
+                intent.setClass(MainActivity.this, SettingsActivity.class);
+
                 break;
             case R.id.about:
-                i1.setClass(MainActivity.this, AboutActivity.class);
-                startActivity(i1);
+                intent.setClass(MainActivity.this, AboutActivity.class);
+
                 break;
             case R.id.dc:
-                Intent i2 = new Intent();
-                i2.setAction(Intent.ACTION_VIEW);
-                i2.setData(Uri.parse("https://discord.gg/ESCfUBy26Z"));
-                startActivity(i2);
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://discord.gg/ESCfUBy26Z"));
+
                 break;
             case R.id.gh:
-                Intent i3 = new Intent();
-                i3.setAction(Intent.ACTION_VIEW);
-                i3.setData(Uri.parse("https://github.com/OpenBlocksTeam"));
-                startActivity(i3);
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://github.com/OpenBlocksTeam"));
+
                 break;
             case R.id.web:
-                Intent i4 = new Intent();
-                i4.setAction(Intent.ACTION_VIEW);
-                i4.setData(Uri.parse("https://openblocks.tk/"));
-                startActivity(i4);
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://openblocks.tk/"));
+
                 break;
         }
+
+        startActivity(intent);
 
         return false;
     }
 
-    public class FragmentAdapter extends FragmentStatePagerAdapter {
+    public static class FragmentAdapter extends FragmentStatePagerAdapter {
         Context context;
         int tabCount;
 
@@ -189,16 +181,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         public CharSequence getPageTitle(int _position) {
-            if (_position == 0) return "Projects";
-            if (_position == 1) return "Modules";
-            else return null;
+            switch (_position) {
+                case 0:
+                    return "Projects";
+                case 1:
+                    return "Modules";
+                default:
+                    return null;
+            }
         }
 
+        @NonNull
         @Override
         public Fragment getItem(int _position) {
-            if (_position == 0) return new ProjectsFragment();
-            if (_position == 1) return new ModulesFragment();
-            else return null;
+            switch (_position) {
+                case 0:
+                    return new ProjectsFragment();
+                case 1:
+                    return new ModulesFragment();
+                default:
+                    return new Fragment();
+            }
         }
     }
 }

@@ -25,6 +25,9 @@ import java.util.zip.ZipInputStream;
 
 import dalvik.system.DexClassLoader;
 
+/**
+ * This singleton class is used to add, remove, and import (manage) modules
+ */
 public class ModuleManager {
     private static ModuleManager single_instance = null;
 
@@ -42,6 +45,24 @@ public class ModuleManager {
             single_instance = new ModuleManager();
 
         return single_instance;
+    }
+
+    public HashMap<OpenBlocksModule.Type, ArrayList<Module>> getModules() {
+        return modules;
+    }
+
+    public ArrayList<Module> getModulesAsList() {
+        ArrayList<Module> result = new ArrayList<>();
+
+        for (OpenBlocksModule.Type type : modules.keySet()) {
+            result.addAll(Objects.requireNonNull(modules.get(type)));
+        }
+
+        return result;
+    }
+
+    public Module getActiveModule(OpenBlocksModule.Type type) {
+        return active_modules.get(type);
     }
 
     /**
@@ -160,10 +181,6 @@ public class ModuleManager {
 
             } catch (JSONException ignored) { } // We're gonna ignore the error, and go on
         }
-    }
-
-    public HashMap<OpenBlocksModule.Type, ArrayList<Module>> getModules() {
-        return modules;
     }
 
     /**

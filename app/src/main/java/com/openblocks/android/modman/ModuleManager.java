@@ -239,12 +239,12 @@ public class ModuleManager {
         return module;
     }
     
-    public boolean removeModule(OpenBlocksModule.Type module_type, Module module) throws ModuleIsActiveException {
+    public boolean removeModule(OpenBlocksModule.Type module_type, Module module) {
         if (!modules.containsKey(module_type))
             throw new IllegalArgumentException("Module type " + module_type.toString() + " doesn't exist in the modules list");
 
         if (active_modules.get(module_type).equals(module))
-            throw new ModuleIsActiveException("You cannot remove an activated module");
+            throw new IllegalArgumentException("You cannot remove an activated module");
 
         return modules.get(module_type).remove(module);
     }

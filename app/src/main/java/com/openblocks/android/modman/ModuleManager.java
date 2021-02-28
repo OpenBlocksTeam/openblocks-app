@@ -319,6 +319,12 @@ public class ModuleManager {
         return modules.get(module_type).remove(module);
     }
 
+    /**
+     * This function activates a module
+     *
+     * @param module_type The module type of the module that is to be activated
+     * @param module The module that is to be activated
+     */
     public void activateModule(@NonNull OpenBlocksModule.Type module_type, @NonNull Module module) {
         if (!modules.containsKey(module_type))
             throw new IllegalArgumentException("Module type " + module_type.toString() + " doesn't exist in the modules list");

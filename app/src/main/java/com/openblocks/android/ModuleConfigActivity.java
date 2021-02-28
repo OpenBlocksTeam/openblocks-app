@@ -68,10 +68,6 @@ public class ModuleConfigActivity extends AppCompatActivity {
             e.printStackTrace();
 
             Toast.makeText(this, "IllegalAccessException: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-
-            Toast.makeText(this, "Failed to instantiate module: " + e.getMessage(), Toast.LENGTH_LONG).show();
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
 

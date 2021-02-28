@@ -54,10 +54,9 @@ public class ModuleConfigActivity extends AppCompatActivity {
             final DexClassLoader classloader = new DexClassLoader(libPath, getCodeCacheDir().getAbsolutePath(), null, this.getClass().getClassLoader());
             final Class<Object> module_class = (Class<Object>) classloader.loadClass(classpath);
 
-            final OpenBlocksModule instantiated_module = (OpenBlocksModule) module_class.newInstance();
             final Method setupConfig = module_class.getMethod("setupConfig");
 
-            OpenBlocksConfig config = (OpenBlocksConfig) setupConfig.invoke(instantiated_module);
+            OpenBlocksConfig config = (OpenBlocksConfig) setupConfig.invoke(module_class);
 
             loadConfig(config);
 

@@ -44,6 +44,13 @@ public class ModuleManager {
         return single_instance;
     }
 
+    /**
+     * This function loads every defined modules on the local modules path and in modules.json
+     *
+     * @param context The context
+     * @throws IOException When an IO error occurs
+     * @throws ModuleJsonCorruptedException When the modules.json is corrupted / malformed
+     */
     public void load_modules(Context context) throws IOException, ModuleJsonCorruptedException {
         // Modules are stored on the internal directory /modules/
         File modules_directory = new File(context.getFilesDir(), "modules");
@@ -84,11 +91,13 @@ public class ModuleManager {
 
         // Create the module directory if it doesn't exist
         if (!modules_directory.exists()) {
-            modules_directory.mkdir();
+            if (!modules_directory.mkdir()) {
+                throw new IOException("Failed to create the modules directory for unknown reason");
+            }
         }
 
         // Loop per files, extract their information, and add them to the modules HashMap<ArrayList>
-        for (File module: modules_directory.listFiles()) {
+        for (File module: Objects.requireNonNull(modules_directory.listFiles())) {
             if (module.getName().equals("modules.json")) {
 
                 try {
@@ -157,6 +166,16 @@ public class ModuleManager {
         return modules;
     }
 
+    /**
+     * This function imports a module from a path, Note that this will not add the module to the
+     * modules variable
+     *
+     * @param context The context
+     * @param path The path where the module is located
+     * @return The imported module
+     * @throws IOException When an IO error occurs
+     * @throws JSONException When the module is corrupted / malformed
+     */
     public Module importModule(Context context, String path) throws IOException, JSONException {
         Module module = new Module();
         OpenBlocksModule.Type module_type = null;
@@ -242,6 +261,14 @@ public class ModuleManager {
         return module;
     }
 
+    /**
+     * This function loads the module's class into a class that we can invoke functions to
+     *
+     * @param context The context
+     * @param module The module that is to be loaded
+     * @return The loaded class of the module given
+     * @throws ClassNotFoundException When the module's classpath is wrong / corrupted
+     */
     public Class<Object> loadModule(Context context, Module module) throws ClassNotFoundException {
         final DexClassLoader classloader =
                 new DexClassLoader(
@@ -254,11 +281,18 @@ public class ModuleManager {
         return (Class<Object>) classloader.loadClass(module.classpath);
     }
 
+    /**
+     * This function removes a module from the modules list
+     *
+     * @param module_type The module type of the module that is to be removed
+     * @param module The module itself
+     * @return true if success, false if failed
+     */
     public boolean removeModule(OpenBlocksModule.Type module_type, Module module) {
         if (!modules.containsKey(module_type))
             throw new IllegalArgumentException("Module type " + module_type.toString() + " doesn't exist in the modules list");
 
-        if (active_modules.get(module_type).equals(module))
+        if (Objects.equals(active_modules.get(module_type), module))
             throw new IllegalArgumentException("You cannot remove an activated module");
 
         return modules.get(module_type).remove(module);
@@ -271,6 +305,13 @@ public class ModuleManager {
         active_modules.put(module_type, module);
     }
 
+    /**
+     * This function saves the activated modules into the modules.json file
+     *
+     * @param context The context
+     * @throws IOException When an IO error occurs
+     * @throws JSONException When the modules.json is corrupted / malformed
+     */
     private void saveActiveModules(Context context) throws IOException, JSONException {
         // Get the modules directory
         File modules_directory = new File(context.getFilesDir(), "modules");
@@ -292,18 +333,17 @@ public class ModuleManager {
         FileHelper.writeFile(modules_json, modules_info.toString().getBytes());
     }
 
+    /**
+     * This function saves every modules that has been loaded (and edited) into the modules.json
+     * file
+     *
+     * @param context The context
+     * @throws IOException When an IO error occurs
+     * @throws JSONException When the modules.json is corrupted / malformed
+     */
     private void saveModules(Context context) throws IOException, JSONException {
         if (modules == null)
             return;
-        /*
-        *          *     "IyxanProjectManager.jar": {
-         *       "name": "IyxanProjectManager",
-         *       "description": "IyxanProjectManager is a super lightweight and super simple project manager.",
-         *       "classpath": "com.iyxan23.project.manager.IyxanProjectManager",
-         *       "type": "PROJECT_MANAGER",
-         *       "version": 1, // This is the module's version
-         *       "lib_version": 1, // This is the library's (OpenBlocksInterface) version
-        * */
 
         File modules_directory = new File(context.getFilesDir(), "modules");
 
@@ -320,7 +360,7 @@ public class ModuleManager {
                 // Get the module
                 Module module = modules.get(type).get(i);
 
-                // Put the module into a jsonobject
+                // Put the module into a JSONObject
                 JSONObject module_json = new JSONObject();
                 module_json.put("name", module.name);
                 module_json.put("description", module.description);

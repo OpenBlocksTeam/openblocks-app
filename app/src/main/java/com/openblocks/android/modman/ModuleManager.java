@@ -80,6 +80,10 @@ public class ModuleManager {
         JSONObject active_modules_json = null;
         ArrayList<Pair<String, File>> jar_files = new ArrayList<>();
 
+        // Clear everything first
+        modules = new HashMap<>();
+        active_modules = new HashMap<>();
+
         /* The module folder should contain something like this:
          *
          * modules

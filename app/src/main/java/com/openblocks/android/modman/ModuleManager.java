@@ -129,6 +129,7 @@ public class ModuleManager {
                 }
 
                 Module module = new Module(
+                        filename,
                         current_module_info.getString("name"),
                         current_module_info.getString("description"),
                         current_module_info.getString("classpath"),
@@ -226,6 +227,7 @@ public class ModuleManager {
 
         // ok, let's put the jar_file here
         module.jar_file = jar_file;
+        module.filename = jar_file.getName();
 
         // Check if this module_type hasn't been initialized
         if (!modules.containsKey(module_type)) {
@@ -251,7 +253,7 @@ public class ModuleManager {
 
         return (Class<Object>) classloader.loadClass(module.classpath);
     }
-    
+
     public boolean removeModule(OpenBlocksModule.Type module_type, Module module) {
         if (!modules.containsKey(module_type))
             throw new IllegalArgumentException("Module type " + module_type.toString() + " doesn't exist in the modules list");
@@ -267,5 +269,72 @@ public class ModuleManager {
             throw new IllegalArgumentException("Module type " + module_type.toString() + " doesn't exist in the modules list");
 
         active_modules.put(module_type, module);
+    }
+
+    private void saveActiveModules(Context context) throws IOException, JSONException {
+        // Get the modules directory
+        File modules_directory = new File(context.getFilesDir(), "modules");
+
+        // Then parse it
+        File modules_json = new File(modules_directory, "modules.json");
+        JSONObject modules_info = new JSONObject(FileHelper.readFile(modules_json));
+
+        // Loop per each type
+        for (OpenBlocksModule.Type type: active_modules.keySet()) {
+            if (active_modules.get(type) == null)
+                continue;
+
+            // Update the module name
+            modules_info.getJSONObject("active_modules").put(type.toString(), active_modules.get(type).filename);
+        }
+
+        // Then put it back
+        FileHelper.writeFile(modules_json, modules_info.toString().getBytes());
+    }
+
+    private void saveModules(Context context) throws IOException, JSONException {
+        if (modules == null)
+            return;
+        /*
+        *          *     "IyxanProjectManager.jar": {
+         *       "name": "IyxanProjectManager",
+         *       "description": "IyxanProjectManager is a super lightweight and super simple project manager.",
+         *       "classpath": "com.iyxan23.project.manager.IyxanProjectManager",
+         *       "type": "PROJECT_MANAGER",
+         *       "version": 1, // This is the module's version
+         *       "lib_version": 1, // This is the library's (OpenBlocksInterface) version
+        * */
+
+        File modules_directory = new File(context.getFilesDir(), "modules");
+
+        // Then parse it
+        File modules_json = new File(modules_directory, "modules.json");
+        JSONObject modules_info = new JSONObject(FileHelper.readFile(modules_json));
+
+        // Loop per each type
+        for (OpenBlocksModule.Type type: modules.keySet()) {
+            if (!modules.containsKey(type))
+                continue;
+
+            for (int i = 0; i < modules.get(type).size(); i++) {
+                // Get the module
+                Module module = modules.get(type).get(i);
+
+                // Put the module into a jsonobject
+                JSONObject module_json = new JSONObject();
+                module_json.put("name", module.name);
+                module_json.put("description", module.description);
+                module_json.put("classpath", module.classpath);;
+                module_json.put("type", type.toString());
+                module_json.put("version", module.version);
+                module_json.put("lib_version", module.lib_version);
+
+                // Finally, update the module
+                modules_info.getJSONObject("modules").put(modules.get(type).get(i).filename, module_json);
+            }
+        }
+
+        // Then put it back
+        FileHelper.writeFile(modules_json, modules_info.toString().getBytes());
     }
 }

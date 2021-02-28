@@ -9,6 +9,7 @@ public class Module implements Parcelable {
     public String name;
     public String description;
     public String classpath;
+    public String filename;
 
     public int version;
     public int lib_version;
@@ -17,7 +18,8 @@ public class Module implements Parcelable {
 
     public Module() { }
 
-    public Module(String name, String description, String classpath, int version, int lib_version, File jar_file) {
+    public Module(String filename, String name, String description, String classpath, int version, int lib_version, File jar_file) {
+        this.filename = filename;
         this.name = name;
         this.description = description;
         this.classpath = classpath;

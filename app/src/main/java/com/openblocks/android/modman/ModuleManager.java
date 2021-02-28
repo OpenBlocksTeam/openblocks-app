@@ -3,9 +3,10 @@ package com.openblocks.android.modman;
 import android.content.Context;
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
+
 import com.openblocks.android.helpers.FileHelper;
 import com.openblocks.android.modman.models.Module;
-import com.openblocks.android.modman.models.ModuleIsActiveException;
 import com.openblocks.moduleinterface.OpenBlocksModule;
 
 import org.json.JSONException;
@@ -16,13 +17,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import dalvik.system.DexClassLoader;
 
 public class ModuleManager {
     private static ModuleManager single_instance = null;
@@ -238,6 +239,18 @@ public class ModuleManager {
         // Ight we can return the module
         return module;
     }
+
+    public Class<Object> loadModule(Context context, Module module) throws ClassNotFoundException {
+        final DexClassLoader classloader =
+                new DexClassLoader(
+                        module.jar_file.getAbsolutePath(),
+                        context.getCodeCacheDir().getAbsolutePath(),
+                        null,
+                        this.getClass().getClassLoader()
+                );
+
+        return (Class<Object>) classloader.loadClass(module.classpath);
+    }
     
     public boolean removeModule(OpenBlocksModule.Type module_type, Module module) {
         if (!modules.containsKey(module_type))
@@ -247,5 +260,12 @@ public class ModuleManager {
             throw new IllegalArgumentException("You cannot remove an activated module");
 
         return modules.get(module_type).remove(module);
+    }
+
+    public void activateModule(@NonNull OpenBlocksModule.Type module_type, @NonNull Module module) {
+        if (!modules.containsKey(module_type))
+            throw new IllegalArgumentException("Module type " + module_type.toString() + " doesn't exist in the modules list");
+
+        active_modules.put(module_type, module);
     }
 }

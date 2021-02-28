@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Load modules
         try {
-            moduleManager.load_modules(this);
+            moduleManager.loadModules(this);
 
         } catch (IOException e) {
             e.printStackTrace();

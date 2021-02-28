@@ -72,7 +72,7 @@ public class ModuleManager {
      * @throws IOException When an IO error occurs
      * @throws ModuleJsonCorruptedException When the modules.json is corrupted / malformed
      */
-    public void load_modules(Context context) throws IOException, ModuleJsonCorruptedException {
+    public void loadModules(Context context) throws IOException, ModuleJsonCorruptedException {
         // Modules are stored on the internal directory /modules/
         File modules_directory = new File(context.getFilesDir(), "modules");
 

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,7 +77,7 @@ public class ModulesFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_modules, container, false);
 
         RecyclerView modules_list = root.findViewById(R.id.modules_list);
-        modules_list.setLayoutManager(new LinearLayoutManager(requireContext()));
+        modules_list.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
 
         ModulesRecyclerViewAdapter adapter = new ModulesRecyclerViewAdapter(modules, requireActivity());
         modules_list.setAdapter(adapter);

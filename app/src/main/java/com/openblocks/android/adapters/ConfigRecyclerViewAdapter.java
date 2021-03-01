@@ -3,12 +3,17 @@ package com.openblocks.android.adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
@@ -21,19 +26,29 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.openblocks.android.ModuleConfigActivity;
 import com.openblocks.android.R;
 import com.openblocks.moduleinterface.models.config.OpenBlocksConfig;
 import com.openblocks.moduleinterface.models.config.OpenBlocksConfigItem;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ConfigRecyclerViewAdapter extends RecyclerView.Adapter<ConfigRecyclerViewAdapter.ViewHolder> {
 
-    ArrayList<OpenBlocksConfigItem> configItems;
+    OpenBlocksConfig config;
 
-    public ConfigRecyclerViewAdapter(ArrayList<OpenBlocksConfigItem> configItems) {
-        this.configItems = configItems;
+    // Why WeakReference? Because setting this as plain activity can cause memory leaks, the java
+    //                    garbage collector doesn't collect variables that have strong reference
+    WeakReference<Activity> activity;
+
+    // TAG: VALUE
+    HashMap<String, Object> saved_items = new HashMap<>();
+
+    public ConfigRecyclerViewAdapter(OpenBlocksConfig configItems, Activity activity) {
+        this.config = configItems;
+        this.activity = new WeakReference<>(activity);
     }
 
     @NonNull
@@ -46,9 +61,23 @@ public class ConfigRecyclerViewAdapter extends RecyclerView.Adapter<ConfigRecycl
         );
     }
 
+    public OpenBlocksConfig getConfig() {
+        for (String tag: saved_items.keySet()) {
+            config.setConfigValue(tag, saved_items.get(tag));
+        }
+
+        return config;
+    }
+
+    public void onResult(int requestCode, Intent data) {
+        // Set the value as the path
+        saved_items.put(config.getTAGs()[requestCode], data.getData().getPath());
+    }
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        OpenBlocksConfigItem item = configItems.get(position);
+        OpenBlocksConfigItem item = config.getConfigs().get(position);
+        String[] tags = config.getTAGs();
 
         Context context = holder.title.getContext();
         View input = null;
@@ -61,6 +90,10 @@ public class ConfigRecyclerViewAdapter extends RecyclerView.Adapter<ConfigRecycl
                 switch_.setShowText(false);
                 switch_.setChecked((Boolean) item.value);
 
+                switch_.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    saved_items.put(tags[position], isChecked);
+                });
+
                 input = switch_;
                 break;
 
@@ -68,14 +101,26 @@ public class ConfigRecyclerViewAdapter extends RecyclerView.Adapter<ConfigRecycl
                 Spinner spinner = new Spinner(context);
                 spinner.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, (ArrayList<String>) item.extra));
 
+                spinner.setOnItemClickListener((parent, view, position1, id) ->
+                        saved_items.put(
+                                tags[position],
+                                ((String[]) item.extra)[position1]
+                        )
+                );
+
                 input = spinner;
                 break;
 
             case OPEN_FILE:
                 MaterialButton button = new MaterialButton(context);
                 button.setText("Open File");
+
                 button.setOnClickListener(v -> {
-                    // TODO
+                    Intent i = new Intent();
+                    i   .setAction(Intent.ACTION_OPEN_DOCUMENT)
+                        .addCategory(Intent.CATEGORY_OPENABLE);
+
+                    activity.get().startActivityForResult(i, position); // Use the position as the request code
                 });
 
                 input = button;
@@ -86,6 +131,16 @@ public class ConfigRecyclerViewAdapter extends RecyclerView.Adapter<ConfigRecycl
                 editText.setText((String) item.value);
                 editText.setHint("Input here");
 
+                editText.addTextChangedListener(new TextWatcher() {
+                    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                    @Override public void afterTextChanged(Editable s) { }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        saved_items.put(tags[position], s.toString());
+                    }
+                });
+
                 input = editText;
                 break;
 
@@ -94,6 +149,16 @@ public class ConfigRecyclerViewAdapter extends RecyclerView.Adapter<ConfigRecycl
                 editText_.setRawInputType(InputType.TYPE_CLASS_NUMBER);
                 editText_.setText((String) item.value);
                 editText_.setHint("Input here");
+
+                editText_.addTextChangedListener(new TextWatcher() {
+                    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                    @Override public void afterTextChanged(Editable s) { }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        saved_items.put(tags[position], Integer.parseInt(s.toString()));
+                    }
+                });
 
                 input = editText_;
                 break;
@@ -113,9 +178,13 @@ public class ConfigRecyclerViewAdapter extends RecyclerView.Adapter<ConfigRecycl
                     } else if (results.contains(items[which])) {
                         results.remove(which);
                     }
-                }).setPositiveButton("OK", (dialog, id) -> {
-                    // TODO
-                }).setNegativeButton("Cancel", (dialog, id) -> dialog.dismiss());
+
+                }).setPositiveButton("OK", (dialog, id) ->
+                        saved_items.put(tags[position], results)
+
+                ).setNegativeButton("Cancel", (dialog, id) ->
+                        dialog.dismiss()
+                );
 
                 break;
 
@@ -128,7 +197,7 @@ public class ConfigRecyclerViewAdapter extends RecyclerView.Adapter<ConfigRecycl
 
     @Override
     public int getItemCount() {
-        return configItems.size();
+        return config.getConfigs().size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

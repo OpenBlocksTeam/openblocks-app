@@ -1,11 +1,13 @@
 package com.openblocks.android;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -30,6 +32,8 @@ import dalvik.system.DexClassLoader;
 public class ModuleConfigActivity extends AppCompatActivity {
 
     private static final String TAG = "ModuleConfigActivity";
+
+    ConfigRecyclerViewAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +101,7 @@ public class ModuleConfigActivity extends AppCompatActivity {
         rv.setLayoutManager(new LinearLayoutManager(this));
 
         // And apply the adapter, done
-        ConfigRecyclerViewAdapter adapter = new ConfigRecyclerViewAdapter(config.getConfigs());
+        adapter = new ConfigRecyclerViewAdapter(config, this);
         rv.setAdapter(adapter);
     }
 
@@ -111,5 +115,15 @@ public class ModuleConfigActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (data == null)
+            return;
+
+        adapter.onResult(requestCode, data);
     }
 }

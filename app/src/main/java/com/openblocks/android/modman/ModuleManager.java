@@ -72,7 +72,7 @@ public class ModuleManager {
      * @throws IOException When an IO error occurs
      * @throws ModuleJsonCorruptedException When the modules.json is corrupted / malformed
      */
-    public void loadModules(Context context) throws IOException, ModuleJsonCorruptedException {
+    public void fetchAllModules(Context context) throws IOException, ModuleJsonCorruptedException {
         // Modules are stored on the internal directory /modules/
         File modules_directory = new File(context.getFilesDir(), "modules");
 
@@ -188,8 +188,30 @@ public class ModuleManager {
     }
 
     /**
+     * This function fetches the module's class into a class that we can invoke functions to
+     *
+     * @param context The context
+     * @param module The module that is to be loaded
+     * @return The loaded class of the module given
+     * @throws ClassNotFoundException When the module's classpath is wrong / corrupted
+     */
+    public Class<Object> fetchModule(Context context, Module module) throws ClassNotFoundException {
+        final DexClassLoader classloader =
+                new DexClassLoader(
+                        module.jar_file.getAbsolutePath(),
+                        context.getCodeCacheDir().getAbsolutePath(),
+                        null,
+                        this.getClass().getClassLoader()
+                );
+
+        return (Class<Object>) classloader.loadClass(module.classpath);
+    }
+
+    /**
      * This function imports a module from a path, Note that this will not add the module to the
      * modules variable
+     *
+     * Note: The imported module will be automatically added to the modules list
      *
      * @param context The context
      * @param path The path where the module is located
@@ -280,26 +302,6 @@ public class ModuleManager {
 
         // Ight we can return the module
         return module;
-    }
-
-    /**
-     * This function loads the module's class into a class that we can invoke functions to
-     *
-     * @param context The context
-     * @param module The module that is to be loaded
-     * @return The loaded class of the module given
-     * @throws ClassNotFoundException When the module's classpath is wrong / corrupted
-     */
-    public Class<Object> loadModule(Context context, Module module) throws ClassNotFoundException {
-        final DexClassLoader classloader =
-                new DexClassLoader(
-                        module.jar_file.getAbsolutePath(),
-                        context.getCodeCacheDir().getAbsolutePath(),
-                        null,
-                        this.getClass().getClassLoader()
-                );
-
-        return (Class<Object>) classloader.loadClass(module.classpath);
     }
 
     /**

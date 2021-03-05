@@ -15,7 +15,6 @@ import com.openblocks.android.fragments.main.ProjectsFragment;
 import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.moduleinterface.OpenBlocksModule;
-import com.openblocks.moduleinterface.models.config.OpenBlocksConfig;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +33,7 @@ public class ProjectEditorActivity extends AppCompatActivity {
         OpenBlocksModule.ProjectManager project_manager_instance;
 
         try {
-            project_manager_class = moduleManager.loadModule(this, project_manager);
+            project_manager_class = moduleManager.fetchModule(this, project_manager);
 
             project_manager_instance = (OpenBlocksModule.ProjectManager) project_manager_class.newInstance();
         } catch (ClassNotFoundException e) {

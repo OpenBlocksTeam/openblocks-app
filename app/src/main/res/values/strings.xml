@@ -7,4 +7,6 @@
     <string name="menu_discord">Discord</string>
     <string name="menu_title_community">Community</string>
     <string name="current_version">0.1-beta</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

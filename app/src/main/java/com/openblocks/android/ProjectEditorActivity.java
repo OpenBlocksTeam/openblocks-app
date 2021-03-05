@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.openblocks.android.fragments.main.ModulesFragment;
 import com.openblocks.android.fragments.main.ProjectsFragment;
+import com.openblocks.android.modman.ModuleLoader;
 import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.moduleinterface.OpenBlocksModule;
@@ -28,25 +29,9 @@ public class ProjectEditorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_editor);
 
-        Module project_manager  = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_MANAGER   );
-        Class<Object> project_manager_class;
-        OpenBlocksModule.ProjectManager project_manager_instance;
-
-        try {
-            project_manager_class = moduleManager.fetchModule(this, project_manager);
-
-            project_manager_instance = (OpenBlocksModule.ProjectManager) project_manager_class.newInstance();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-
-            Toast.makeText(this, "Error whilst loading project manager module " + project_manager.name + ": Wrong classpath", Toast.LENGTH_LONG).show();
-        } catch (IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
-
-            Toast.makeText(this, "Error while instantiating module " + project_manager.name + ": " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-
-        // TODO
+        Module project_manager = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_MANAGER);
+        OpenBlocksModule.ProjectManager project_manager_instance = ModuleLoader.load(this, project_manager, OpenBlocksModule.ProjectManager.class);
+        
     }
 
     public static class FragmentAdapter extends FragmentStatePagerAdapter {

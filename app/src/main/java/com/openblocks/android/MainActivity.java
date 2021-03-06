@@ -25,6 +25,8 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.openblocks.android.fragments.main.ModulesFragment;
+import com.openblocks.android.fragments.main.ProjectsFragment;
 import com.openblocks.android.modman.ModuleJsonCorruptedException;
 import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
@@ -100,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Load modules
         try {
-            moduleManager.loadModules(this);
+            moduleManager.fetchAllModules(this);
 
         } catch (IOException e) {
             e.printStackTrace();

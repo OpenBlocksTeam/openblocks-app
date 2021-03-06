@@ -31,7 +31,7 @@ public class ProjectEditorActivity extends AppCompatActivity {
 
         Module project_manager = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_MANAGER);
         OpenBlocksModule.ProjectManager project_manager_instance = ModuleLoader.load(this, project_manager, OpenBlocksModule.ProjectManager.class);
-        
+
     }
 
     public static class FragmentAdapter extends FragmentStatePagerAdapter {

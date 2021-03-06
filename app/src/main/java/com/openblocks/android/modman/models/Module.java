@@ -3,6 +3,9 @@ package com.openblocks.android.modman.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.openblocks.moduleinterface.OpenBlocksModule;
+import com.openblocks.moduleinterface.models.config.OpenBlocksConfig;
+
 import java.io.File;
 
 public class Module implements Parcelable {
@@ -16,9 +19,11 @@ public class Module implements Parcelable {
 
     public File jar_file;
 
+    public OpenBlocksModule.Type module_type;
+
     public Module() { }
 
-    public Module(String filename, String name, String description, String classpath, int version, int lib_version, File jar_file) {
+    public Module(String filename, String name, String description, String classpath, int version, int lib_version, File jar_file, OpenBlocksModule.Type module_type) {
         this.filename = filename;
         this.name = name;
         this.description = description;
@@ -26,6 +31,7 @@ public class Module implements Parcelable {
         this.version = version;
         this.lib_version = lib_version;
         this.jar_file = jar_file;
+        this.module_type = module_type;
     }
 
     protected Module(Parcel in) {
@@ -35,6 +41,7 @@ public class Module implements Parcelable {
         version = in.readInt();
         lib_version = in.readInt();
         jar_file = new File(in.readString());
+        module_type = OpenBlocksModule.Type.valueOf(in.readString());
     }
 
     public static final Creator<Module> CREATOR = new Creator<Module>() {
@@ -62,5 +69,6 @@ public class Module implements Parcelable {
         dest.writeInt(version);
         dest.writeInt(lib_version);
         dest.writeString(jar_file.getAbsolutePath());
+        dest.writeString(module_type.toString());
     }
 }

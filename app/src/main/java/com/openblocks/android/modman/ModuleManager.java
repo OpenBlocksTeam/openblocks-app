@@ -169,7 +169,8 @@ public class ModuleManager {
                         current_module_info.getString("classpath"),
                         current_module_info.getInt("version"),
                         current_module_info.getInt("lib_version"),
-                        jar_file.second
+                        jar_file.second,
+                        module_type
                 );
 
                 // ohk, add the module

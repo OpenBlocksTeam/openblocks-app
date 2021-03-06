@@ -40,7 +40,7 @@ public class ProjectRecyclerViewAdapter extends RecyclerView.Adapter<ProjectRecy
 
     @Override
     public int getItemCount() {
-        return projects_metadata.size() - 1;
+        return projects_metadata.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

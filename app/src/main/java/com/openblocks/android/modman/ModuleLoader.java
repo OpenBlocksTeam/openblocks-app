@@ -7,7 +7,7 @@ import com.openblocks.android.modman.models.Module;
 import com.openblocks.moduleinterface.OpenBlocksModule;
 
 /**
- * ModuleLoader is a singleton class used to load modules into OpenBlocksModule
+ * ModuleLoader is a utility class used to load modules into OpenBlocksModule
  */
 public class ModuleLoader {
 

@@ -28,9 +28,15 @@ import com.google.android.material.tabs.TabLayout;
 import com.openblocks.android.fragments.main.ModulesFragment;
 import com.openblocks.android.fragments.main.ProjectsFragment;
 import com.openblocks.android.modman.ModuleJsonCorruptedException;
+import com.openblocks.android.modman.ModuleLoader;
 import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.moduleinterface.OpenBlocksModule;
+import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
+import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
+import com.openblocks.moduleinterface.models.config.OpenBlocksConfig;
+import com.openblocks.moduleinterface.projectfiles.OpenBlocksCode;
+import com.openblocks.moduleinterface.projectfiles.OpenBlocksLayout;
 
 import org.json.JSONException;
 
@@ -118,11 +124,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Load Modules ============================================================================
 
+        // Load Projects ===========================================================================
+
+        Module project_manager_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_MANAGER);
+        Module project_parser_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_PARSER);
+        OpenBlocksModule.ProjectManager projectManager = ModuleLoader.load(this, project_manager_module, OpenBlocksModule.ProjectManager.class);
+        OpenBlocksModule.ProjectParser projectParser = ModuleLoader.load(this, project_parser_module, OpenBlocksModule.ProjectParser.class);
+
+        ArrayList<OpenBlocksProjectMetadata> projects_metadata = new ArrayList<>();
+
+        if (projectManager != null && projectParser != null) {
+            // Only run these if the modules are successfully loaded
+            ArrayList<OpenBlocksRawProject> projects = projectManager.listProjects();
+
+            for (OpenBlocksRawProject project : projects) {
+                projects_metadata.add(projectParser.parseMetadata(project));
+            }
+        }
+
+        // Load Projects ===========================================================================
+
         // View Pager
         ViewPager viewPager = findViewById(R.id.viewPager);
         TabLayout tabLayout = findViewById(R.id.tabLayout);
 
-        viewPager.setAdapter(new FragmentAdapter(getApplicationContext(), getSupportFragmentManager(), 2, modules));
+        viewPager.setAdapter(new FragmentAdapter(getApplicationContext(), getSupportFragmentManager(), 2, modules, projects_metadata));
         tabLayout.setupWithViewPager(viewPager);
 
         // FABs
@@ -254,12 +280,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int tabCount;
 
         HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules;
+        ArrayList<OpenBlocksProjectMetadata> projectMetadataArrayList;
 
-        public FragmentAdapter(Context context, FragmentManager fm, int tabCount, HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules) {
+        public FragmentAdapter(Context context, FragmentManager fm, int tabCount, HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules, ArrayList<OpenBlocksProjectMetadata> projectMetadataArrayList) {
             super(fm);
             this.context = context;
             this.tabCount = tabCount;
             this.modules = modules;
+            this.projectMetadataArrayList = projectMetadataArrayList;
         }
 
         @Override
@@ -284,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public Fragment getItem(int _position) {
             switch (_position) {
                 case 0:
-                    return new ProjectsFragment();
+                    return ProjectsFragment.newInstance(projectMetadataArrayList);
                 case 1:
                     return ModulesFragment.newInstance(modules);
                 default:

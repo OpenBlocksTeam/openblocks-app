@@ -30,7 +30,7 @@
             app:tabTextColor="#BEFFFFFF"
             app:tabSelectedTextColor="#FFFFFF"
             app:tabIndicatorColor="#FFFFFF"
-            app:tabGravity="center"
+            app:tabGravity="fill"
             app:tabMode="scrollable">
 
             <com.google.android.material.tabs.TabItem

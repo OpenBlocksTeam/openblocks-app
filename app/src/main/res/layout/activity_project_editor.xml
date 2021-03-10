@@ -11,6 +11,7 @@
         android:layout_width="match_parent">
 
         <androidx.appcompat.widget.Toolbar
+            android:id="@+id/project_editor_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways"
@@ -53,9 +54,10 @@
     <androidx.viewpager.widget.ViewPager
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/fab_transformation_scrim_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/project_editor_run"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:src="@drawable/ic_run"

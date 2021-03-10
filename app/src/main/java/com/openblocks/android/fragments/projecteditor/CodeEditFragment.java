@@ -17,17 +17,17 @@ import com.openblocks.moduleinterface.callbacks.SaveCallback;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksCode;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksLayout;
 
-public class LayoutEditFragment extends Fragment {
+public class CodeEditFragment extends Fragment {
 
     OpenBlocksCode code;
     OpenBlocksLayout layout;
-    SaveCallback<OpenBlocksLayout> layout_save;
-    OpenBlocksModule.ProjectLayoutGUI module_instance;
+    SaveCallback<OpenBlocksCode> code_save;
+    OpenBlocksModule.ProjectCodeGUI module_instance;
 
-    public LayoutEditFragment(OpenBlocksLayout layout, OpenBlocksCode code, SaveCallback<OpenBlocksLayout> code_save) {
-        this.layout = layout;
+    public CodeEditFragment(OpenBlocksCode code, OpenBlocksLayout layout, SaveCallback<OpenBlocksCode> code_save) {
         this.code = code;
-        this.layout_save = code_save;
+        this.layout = layout;
+        this.code_save = code_save;
     }
 
     @Override
@@ -35,8 +35,8 @@ public class LayoutEditFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         ModuleManager moduleManager = ModuleManager.getInstance();
-        Module layout_ui_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_LAYOUT_GUI);
-        module_instance = ModuleLoader.load(requireContext(), layout_ui_module, OpenBlocksModule.ProjectLayoutGUI.class);
+        Module code_ui_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_CODE_GUI);
+        module_instance = ModuleLoader.load(requireContext(), code_ui_module, OpenBlocksModule.ProjectCodeGUI.class);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class LayoutEditFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_code_edit, container, false);
-        module_instance.show(requireContext(), root.findViewById(R.id.code_edit_parent), code, layout, layout_save);
+        module_instance.show(requireContext(), root.findViewById(R.id.code_edit_parent), code, layout, code_save);
         return root;
     }
 }

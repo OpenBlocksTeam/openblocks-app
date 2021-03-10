@@ -1,16 +1,19 @@
 package com.openblocks.android;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.preference.internal.PreferenceImageView;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.Toast;
 
@@ -27,6 +30,7 @@ import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.moduleinterface.OpenBlocksModule;
 import com.openblocks.moduleinterface.callbacks.SaveCallback;
+import com.openblocks.moduleinterface.exceptions.CompileException;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksCode;
@@ -69,21 +73,65 @@ public class ProjectEditorActivity extends AppCompatActivity {
 
         // Create some save callbacks
         // TODO: 3/10/21 Create a reverse of parse for PROJECT_PARSER module
-        SaveCallback<OpenBlocksCode> code_save = code -> {
+        SaveCallback<OpenBlocksCode> code_save = code_new -> {
+            code = code_new;
 
+            // TODO: 3/10/21 Run this asynchronously
+
+            // Save the code using project parser and manager
+            project_manager_instance.saveProject(
+                    project_parser_instance.saveProject(
+                            metadata,
+                            code_new,
+                            layout
+                    )
+            );
+
+            Toast.makeText(this, "Code saved!", Toast.LENGTH_SHORT).show();
         };
 
-        SaveCallback<OpenBlocksLayout> layout_save = layout -> {
+        SaveCallback<OpenBlocksLayout> layout_save = layout_new -> {
+            layout = layout_new;
 
+            // TODO: 3/10/21 Run this asynchronously
+
+            // Save the layout using project parser and manager
+            project_manager_instance.saveProject(
+                    project_parser_instance.saveProject(
+                            metadata,
+                            code,
+                            layout_new
+                    )
+            );
+
+            Toast.makeText(this, "Layout saved!", Toast.LENGTH_SHORT).show();
         };
 
         // And bind UI elements I guess
         Toolbar toolbar = findViewById(R.id.project_editor_toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton run_fab = findViewById(R.id.project_editor_run);
-        run_fab.setOnClickListener(view -> {
+        Module compiler_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_COMPILER);
+        OpenBlocksModule.ProjectCompiler compiler = ModuleLoader.load(this, compiler_module, OpenBlocksModule.ProjectCompiler.class);
 
+        FloatingActionButton run_fab = findViewById(R.id.project_editor_run);
+
+        String apk_output_path = getSharedPreferences("data", MODE_PRIVATE).getString("apk_output_path", null);
+        if (apk_output_path == null) {
+            apk_output_path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+        }
+
+        String finalApk_output_path = apk_output_path;
+        run_fab.setOnClickListener(view -> {
+            try {
+                compiler.compile(code, layout, finalApk_output_path);
+            } catch (CompileException e) {
+                e.printStackTrace();
+                AlertDialog.Builder builder = new AlertDialog.Builder(ProjectEditorActivity.this);
+                builder.setTitle("An error occurred while compiling");
+                builder.setMessage("The compiler module (" + compiler_module.name + ") said:\n" + e.message);
+                builder.create().show();
+            }
         });
 
         ViewPager viewPager = findViewById(R.id.viewPager);

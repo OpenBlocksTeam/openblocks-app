@@ -116,15 +116,10 @@ public class ProjectEditorActivity extends AppCompatActivity {
 
         FloatingActionButton run_fab = findViewById(R.id.project_editor_run);
 
-        String apk_output_path = getSharedPreferences("data", MODE_PRIVATE).getString("apk_output_path", null);
-        if (apk_output_path == null) {
-            apk_output_path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
-        }
-
-        String finalApk_output_path = apk_output_path;
+        String apk_output_path = getSharedPreferences("data", MODE_PRIVATE).getString("apk_output_path", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
         run_fab.setOnClickListener(view -> {
             try {
-                compiler.compile(code, layout, finalApk_output_path);
+                compiler.compile(code, layout, apk_output_path);
             } catch (CompileException e) {
                 e.printStackTrace();
                 AlertDialog.Builder builder = new AlertDialog.Builder(ProjectEditorActivity.this);

@@ -3,6 +3,8 @@ package com.openblocks.android.modman;
 import android.content.Context;
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
+
 import com.openblocks.android.helpers.FileHelper;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.moduleinterface.OpenBlocksModule;
@@ -15,14 +17,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import dalvik.system.DexClassLoader;
+
+/**
+ * This singleton class is used to add, remove, and import (manage) modules
+ */
 public class ModuleManager {
     private static ModuleManager single_instance = null;
 
@@ -42,13 +47,42 @@ public class ModuleManager {
         return single_instance;
     }
 
-    public void load_modules(Context context) throws IOException, ModuleJsonCorruptedException {
+    public HashMap<OpenBlocksModule.Type, ArrayList<Module>> getModules() {
+        return modules;
+    }
+
+    public ArrayList<Module> getModulesAsList() {
+        ArrayList<Module> result = new ArrayList<>();
+
+        for (OpenBlocksModule.Type type : modules.keySet()) {
+            result.addAll(Objects.requireNonNull(modules.get(type)));
+        }
+
+        return result;
+    }
+
+    public Module getActiveModule(OpenBlocksModule.Type type) {
+        return active_modules.get(type);
+    }
+
+    /**
+     * This function loads every defined modules on the local modules path and in modules.json
+     *
+     * @param context The context
+     * @throws IOException When an IO error occurs
+     * @throws ModuleJsonCorruptedException When the modules.json is corrupted / malformed
+     */
+    public void fetchAllModules(Context context) throws IOException, ModuleJsonCorruptedException {
         // Modules are stored on the internal directory /modules/
         File modules_directory = new File(context.getFilesDir(), "modules");
 
         JSONObject modules_information = null;
         JSONObject active_modules_json = null;
         ArrayList<Pair<String, File>> jar_files = new ArrayList<>();
+
+        // Clear everything first
+        modules = new HashMap<>();
+        active_modules = new HashMap<>();
 
         /* The module folder should contain something like this:
          *
@@ -82,11 +116,13 @@ public class ModuleManager {
 
         // Create the module directory if it doesn't exist
         if (!modules_directory.exists()) {
-            modules_directory.mkdir();
+            if (!modules_directory.mkdir()) {
+                throw new IOException("Failed to create the modules directory for unknown reason");
+            }
         }
 
         // Loop per files, extract their information, and add them to the modules HashMap<ArrayList>
-        for (File module: modules_directory.listFiles()) {
+        for (File module: Objects.requireNonNull(modules_directory.listFiles())) {
             if (module.getName().equals("modules.json")) {
 
                 try {
@@ -127,12 +163,14 @@ public class ModuleManager {
                 }
 
                 Module module = new Module(
+                        filename,
                         current_module_info.getString("name"),
                         current_module_info.getString("description"),
                         current_module_info.getString("classpath"),
                         current_module_info.getInt("version"),
                         current_module_info.getInt("lib_version"),
-                        jar_file.second
+                        jar_file.second,
+                        module_type
                 );
 
                 // ohk, add the module
@@ -150,10 +188,38 @@ public class ModuleManager {
         }
     }
 
-    public HashMap<OpenBlocksModule.Type, ArrayList<Module>> getModules() {
-        return modules;
+    /**
+     * This function fetches the module's class into a class that we can invoke functions to
+     *
+     * @param context The context
+     * @param module The module that is to be loaded
+     * @return The loaded class of the module given
+     * @throws ClassNotFoundException When the module's classpath is wrong / corrupted
+     */
+    public Class<Object> fetchModule(Context context, Module module) throws ClassNotFoundException {
+        final DexClassLoader classloader =
+                new DexClassLoader(
+                        module.jar_file.getAbsolutePath(),
+                        context.getCodeCacheDir().getAbsolutePath(),
+                        null,
+                        this.getClass().getClassLoader()
+                );
+
+        return (Class<Object>) classloader.loadClass(module.classpath);
     }
 
+    /**
+     * This function imports a module from a path, Note that this will not add the module to the
+     * modules variable
+     *
+     * Note: The imported module will be automatically added to the modules list
+     *
+     * @param context The context
+     * @param path The path where the module is located
+     * @return The imported module
+     * @throws IOException When an IO error occurs
+     * @throws JSONException When the module is corrupted / malformed
+     */
     public Module importModule(Context context, String path) throws IOException, JSONException {
         Module module = new Module();
         OpenBlocksModule.Type module_type = null;
@@ -224,6 +290,7 @@ public class ModuleManager {
 
         // ok, let's put the jar_file here
         module.jar_file = jar_file;
+        module.filename = jar_file.getName();
 
         // Check if this module_type hasn't been initialized
         if (!modules.containsKey(module_type)) {
@@ -236,5 +303,108 @@ public class ModuleManager {
 
         // Ight we can return the module
         return module;
+    }
+
+    /**
+     * This function removes a module from the modules list
+     *
+     * @param module_type The module type of the module that is to be removed
+     * @param module The module itself
+     * @return true if success, false if failed
+     */
+    public boolean removeModule(OpenBlocksModule.Type module_type, Module module) {
+        if (!modules.containsKey(module_type))
+            throw new IllegalArgumentException("Module type " + module_type.toString() + " doesn't exist in the modules list");
+
+        if (Objects.equals(active_modules.get(module_type), module))
+            throw new IllegalArgumentException("You cannot remove an activated module");
+
+        return modules.get(module_type).remove(module);
+    }
+
+    /**
+     * This function activates a module
+     *
+     * @param module_type The module type of the module that is to be activated
+     * @param module The module that is to be activated
+     */
+    public void activateModule(@NonNull OpenBlocksModule.Type module_type, @NonNull Module module) {
+        if (!modules.containsKey(module_type))
+            throw new IllegalArgumentException("Module type " + module_type.toString() + " doesn't exist in the modules list");
+
+        active_modules.put(module_type, module);
+    }
+
+    /**
+     * This function saves the activated modules into the modules.json file
+     *
+     * @param context The context
+     * @throws IOException When an IO error occurs
+     * @throws JSONException When the modules.json is corrupted / malformed
+     */
+    private void saveActiveModules(Context context) throws IOException, JSONException {
+        // Get the modules directory
+        File modules_directory = new File(context.getFilesDir(), "modules");
+
+        // Then parse it
+        File modules_json = new File(modules_directory, "modules.json");
+        JSONObject modules_info = new JSONObject(FileHelper.readFile(modules_json));
+
+        // Loop per each type
+        for (OpenBlocksModule.Type type: active_modules.keySet()) {
+            if (active_modules.get(type) == null)
+                continue;
+
+            // Update the module name
+            modules_info.getJSONObject("active_modules").put(type.toString(), active_modules.get(type).filename);
+        }
+
+        // Then put it back
+        FileHelper.writeFile(modules_json, modules_info.toString().getBytes());
+    }
+
+    /**
+     * This function saves every modules that has been loaded (and edited) into the modules.json
+     * file
+     *
+     * @param context The context
+     * @throws IOException When an IO error occurs
+     * @throws JSONException When the modules.json is corrupted / malformed
+     */
+    private void saveModules(Context context) throws IOException, JSONException {
+        if (modules == null)
+            return;
+
+        File modules_directory = new File(context.getFilesDir(), "modules");
+
+        // Then parse it
+        File modules_json = new File(modules_directory, "modules.json");
+        JSONObject modules_info = new JSONObject(FileHelper.readFile(modules_json));
+
+        // Loop per each type
+        for (OpenBlocksModule.Type type: modules.keySet()) {
+            if (!modules.containsKey(type))
+                continue;
+
+            for (int i = 0; i < modules.get(type).size(); i++) {
+                // Get the module
+                Module module = modules.get(type).get(i);
+
+                // Put the module into a JSONObject
+                JSONObject module_json = new JSONObject();
+                module_json.put("name", module.name);
+                module_json.put("description", module.description);
+                module_json.put("classpath", module.classpath);;
+                module_json.put("type", type.toString());
+                module_json.put("version", module.version);
+                module_json.put("lib_version", module.lib_version);
+
+                // Finally, update the module
+                modules_info.getJSONObject("modules").put(modules.get(type).get(i).filename, module_json);
+            }
+        }
+
+        // Then put it back
+        FileHelper.writeFile(modules_json, modules_info.toString().getBytes());
     }
 }

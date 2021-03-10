@@ -18,7 +18,6 @@
         android:scaleType="centerCrop"
         android:scaleX="2"
         android:scaleY="2"
-        android:contentDescription="@string/nav_header_description"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         app:srcCompat="@drawable/ic_launcher_foreground" />
 

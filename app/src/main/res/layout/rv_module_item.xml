@@ -6,7 +6,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    android:background="@drawable/bg_module_item">
+    android:background="@drawable/bg_module_item_ripple"
+    android:elevation="8dp">
 
     <TextView
         android:id="@+id/module_title"
@@ -55,4 +56,5 @@
         app:layout_constraintEnd_toEndOf="@+id/module_description"
         app:layout_constraintStart_toStartOf="@+id/module_description"
         app:layout_constraintTop_toBottomOf="@+id/module_description" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

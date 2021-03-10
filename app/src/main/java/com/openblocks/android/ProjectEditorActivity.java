@@ -88,7 +88,7 @@ public class ProjectEditorActivity extends AppCompatActivity {
 
         ViewPager viewPager = findViewById(R.id.viewPager);
 
-        ProjectEditorViewPagerAdapter viewPagerAdapter = new ProjectEditorViewPagerAdapter(getSupportFragmentManager(), code, layout);
+        ProjectEditorViewPagerAdapter viewPagerAdapter = new ProjectEditorViewPagerAdapter(getSupportFragmentManager(), code, layout, code_save, layout_save);
         viewPager.setAdapter(viewPagerAdapter);
 
         TabLayout tabLayout = findViewById(R.id.tabs);

@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -197,24 +199,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    final int EDIT_METADATA_REQUEST_CODE = 2;
+
     // When the user clicked the "New Project" button
     public void fabProjectsClicked(View view) {
-        // TODO: 3/11/21 Customizable metadata
+        OpenBlocksProjectMetadata metadata = null;
 
-        String new_id = project_parser.generateFreeId(project_ids);
-
-        // Generate the project
-        OpenBlocksRawProject new_project = project_parser.generateNewProject(new_id);
-
-        // Save the project
-        project_manager.saveProject(new_project);
-
-        project_ids.add(new_id);
-
-        // Then finally, open the project
-        Intent i = new Intent(this, ProjectEditorActivity.class);
-        i.putExtra("project_id", new_id);
-        startActivity(i);
+        // Open the activity
+        Intent i = new Intent(this, ProjectMetadataEditActivity.class);
+        startActivityForResult(i, EDIT_METADATA_REQUEST_CODE);
     }
 
     final int IMPORT_MODULE_REQUEST_CODE = 1;
@@ -258,6 +251,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             // Ok then refresh our activity
             recreate();
+        } else if (requestCode == EDIT_METADATA_REQUEST_CODE) {
+            OpenBlocksProjectMetadata metadata =
+                    new OpenBlocksProjectMetadata(
+                        data.getStringExtra("app_name"),
+                        data.getStringExtra("package_name"),
+                        data.getStringExtra("version_name"),
+                        Integer.parseInt(data.getStringExtra("version_code"))
+                    );
+            
+            // Create a new project
+            String new_id = project_parser.generateFreeId(project_ids);
+
+            // Initialize the project
+            Pair<OpenBlocksCode, OpenBlocksLayout> code_layout = project_parser.initializeEmptyProject();
+            OpenBlocksRawProject new_project = project_parser.saveProject(metadata, code_layout.first, code_layout.second);
+
+            // Save the project
+            project_manager.saveProject(new_project);
+
+            project_ids.add(new_id);
+
+            // Then finally, open the project
+            Intent i = new Intent(this, ProjectEditorActivity.class);
+            i.putExtra("project_id", new_id);
+            startActivity(i);
         }
     }
 

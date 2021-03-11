@@ -131,6 +131,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         OpenBlocksModule.ProjectManager projectManager = ModuleLoader.load(this, project_manager_module, OpenBlocksModule.ProjectManager.class);
         OpenBlocksModule.ProjectParser projectParser = ModuleLoader.load(this, project_parser_module, OpenBlocksModule.ProjectParser.class);
 
+        project_manager.initialize(this);
+        project_parser.initialize(this);
+
         ArrayList<OpenBlocksProjectMetadata> projects_metadata = new ArrayList<>();
 
         if (projectManager != null && projectParser != null) {

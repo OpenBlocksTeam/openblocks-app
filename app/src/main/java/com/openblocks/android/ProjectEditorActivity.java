@@ -122,7 +122,7 @@ public class ProjectEditorActivity extends AppCompatActivity {
         String apk_output_path = getSharedPreferences("data", MODE_PRIVATE).getString("apk_output_path", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
         run_fab.setOnClickListener(view -> {
             try {
-                compiler.compile(code, layout, apk_output_path);
+                compiler.compile(metadata, code, layout, apk_output_path);
             } catch (CompileException e) {
                 e.printStackTrace();
                 AlertDialog.Builder builder = new AlertDialog.Builder(ProjectEditorActivity.this);

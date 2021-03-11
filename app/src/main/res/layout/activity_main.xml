@@ -68,6 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
+            android:onClick="fabProjectsClicked"
             android:src="@drawable/ic_add_white"
             app:backgroundTint="@color/colorAccent" />
 

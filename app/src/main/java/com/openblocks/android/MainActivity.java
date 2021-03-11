@@ -34,7 +34,6 @@ import com.openblocks.android.modman.models.Module;
 import com.openblocks.moduleinterface.OpenBlocksModule;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
-import com.openblocks.moduleinterface.models.config.OpenBlocksConfig;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksCode;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksLayout;
 
@@ -51,6 +50,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private FloatingActionButton fabProjects;
     private FloatingActionButton fabModules;
+
+    OpenBlocksModule.ProjectManager project_manager;
+    OpenBlocksModule.ProjectParser project_parser;
+
+    // List of existing project ids
+    ArrayList<String> project_ids;
 
     private HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules;
 
@@ -128,20 +133,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Module project_manager_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_MANAGER);
         Module project_parser_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_PARSER);
-        OpenBlocksModule.ProjectManager projectManager = ModuleLoader.load(this, project_manager_module, OpenBlocksModule.ProjectManager.class);
-        OpenBlocksModule.ProjectParser projectParser = ModuleLoader.load(this, project_parser_module, OpenBlocksModule.ProjectParser.class);
+        project_manager = ModuleLoader.load(this, project_manager_module, OpenBlocksModule.ProjectManager.class);
+        project_parser = ModuleLoader.load(this, project_parser_module, OpenBlocksModule.ProjectParser.class);
 
         project_manager.initialize(this);
         project_parser.initialize(this);
 
         ArrayList<OpenBlocksProjectMetadata> projects_metadata = new ArrayList<>();
 
-        if (projectManager != null && projectParser != null) {
+        if (project_manager != null && project_parser != null) {
             // Only run these if the modules are successfully loaded
-            ArrayList<OpenBlocksRawProject> projects = projectManager.listProjects();
+            ArrayList<OpenBlocksRawProject> projects = project_manager.listProjects();
 
             for (OpenBlocksRawProject project : projects) {
-                projects_metadata.add(projectParser.parseMetadata(project));
+                project_ids.add(project.ID);
+
+                projects_metadata.add(project_parser.parseMetadata(project));
             }
         }
 
@@ -188,6 +195,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
+    }
+
+    // When the user clicked the "New Project" button
+    public void fabProjectsClicked(View view) {
+        // TODO: 3/11/21 Customizable metadata
+
+        String new_id = project_parser.generateFreeId(project_ids);
+
+        // Generate the project
+        OpenBlocksRawProject new_project = project_parser.generateNewProject(new_id);
+
+        // Save the project
+        project_manager.saveProject(new_project);
+
+        project_ids.add(new_id);
+
+        // Then finally, open the project
+        Intent i = new Intent(this, ProjectEditorActivity.class);
+        i.putExtra("project_id", new_id);
+        startActivity(i);
     }
 
     final int IMPORT_MODULE_REQUEST_CODE = 1;

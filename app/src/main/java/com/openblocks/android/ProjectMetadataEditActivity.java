@@ -9,6 +9,6 @@ public class ProjectMetadataEditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_activity_project_metadata_edit);
+        setContentView(R.layout.dialog_edit_project_metadata);
     }
 }

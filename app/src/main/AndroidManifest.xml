@@ -15,6 +15,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".ProjectMetadataEditActivity"
+            android:excludeFromRecents="true"
             android:theme="@style/Theme.AppCompat.Dialog"/>
         <activity android:name=".SettingsActivity" />
         <activity android:name=".AboutActivity" />

@@ -14,7 +14,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -27,12 +26,14 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.openblocks.android.databinding.ActivityMainBinding;
 import com.openblocks.android.fragments.main.ModulesFragment;
 import com.openblocks.android.fragments.main.ProjectsFragment;
 import com.openblocks.android.modman.ModuleJsonCorruptedException;
 import com.openblocks.android.modman.ModuleLoader;
 import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
+import com.openblocks.android.project.NewProjectDialog;
 import com.openblocks.moduleinterface.OpenBlocksModule;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
@@ -48,34 +49,34 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private DrawerLayout _drawer;
-
-    private FloatingActionButton fabProjects;
-    private FloatingActionButton fabModules;
-
+    final int EDIT_METADATA_REQUEST_CODE = 2;
+    final int IMPORT_MODULE_REQUEST_CODE = 1;
     OpenBlocksModule.ProjectManager project_manager;
     OpenBlocksModule.ProjectParser project_parser;
-
     // List of existing project ids
     ArrayList<String> project_ids;
-
+    private ActivityMainBinding binding;
+    private DrawerLayout _drawer;
+    private FloatingActionButton fabProjects;
+    private FloatingActionButton fabModules;
     private HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         // Main Part (ActionBar)
-        Toolbar _actionBar = findViewById(R.id.toolBar);
+        Toolbar _actionBar = binding.toolBar;
         setSupportActionBar(_actionBar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         // Drawer Toggle & Drawer
-        _drawer = findViewById(R.id.drawer_layout);
-        NavigationView _drawer_navView = findViewById(R.id.nav_view);
+        _drawer = binding.drawerLayout;
+        NavigationView _drawer_navView = binding.navView;
 
         ActionBarDrawerToggle _toggle = new ActionBarDrawerToggle(MainActivity.this, _drawer, _actionBar, R.string.app_name, R.string.app_name);
         _drawer.addDrawerListener(_toggle);
@@ -138,8 +139,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         project_manager = ModuleLoader.load(this, project_manager_module, OpenBlocksModule.ProjectManager.class);
         project_parser = ModuleLoader.load(this, project_parser_module, OpenBlocksModule.ProjectParser.class);
 
-        project_manager.initialize(this);
-        project_parser.initialize(this);
+        if (project_manager != null) project_manager.initialize(this);
+        if (project_parser != null) project_parser.initialize(this);
 
         ArrayList<OpenBlocksProjectMetadata> projects_metadata = new ArrayList<>();
 
@@ -157,21 +158,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Load Projects ===========================================================================
 
         // View Pager
-        ViewPager viewPager = findViewById(R.id.viewPager);
-        TabLayout tabLayout = findViewById(R.id.tabLayout);
+        ViewPager viewPager = binding.viewPager;
+        TabLayout tabLayout = binding.tabLayout;
 
         viewPager.setAdapter(new FragmentAdapter(getApplicationContext(), getSupportFragmentManager(), 2, modules, projects_metadata));
         tabLayout.setupWithViewPager(viewPager);
 
         // FABs
-        fabProjects = findViewById(R.id.fabProjects);
-        fabModules = findViewById(R.id.fabModules);
+        fabProjects = binding.fabProjects;
+        fabModules = binding.fabModules;
 
         fabModules.hide();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            fabProjects.setTooltipText("New Project");
-            fabModules.setTooltipText("Add Module");
+            fabProjects.setTooltipText("New project");
+            fabModules.setTooltipText("Add module");
         }
 
         // Listeners
@@ -199,18 +200,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    final int EDIT_METADATA_REQUEST_CODE = 2;
-
     // When the user clicked the "New Project" button
     public void fabProjectsClicked(View view) {
-        OpenBlocksProjectMetadata metadata = null;
-
-        // Open the activity
-        Intent i = new Intent(this, ProjectMetadataEditActivity.class);
-        startActivityForResult(i, EDIT_METADATA_REQUEST_CODE);
+        // Show the "New project" dialog
+        NewProjectDialog dialog = new NewProjectDialog(this, /* project_parser.generateFreeId(project_ids) */ "601")
+                /* project_parser is still null, remove hardcoded ID after adding some modules */
+                .addOnMetadataEnteredListener((appName, packageName, versionName, versionCode) -> {
+                    // User has clicked the "OK" button (and the data is valid), project has been saved
+                    Toast.makeText(this, "Imagine yourself that a new project with the app name " + appName
+                            + ", the package name " + packageName + ", the version name " + versionName
+                            + " and the version code " + versionCode + " has been created.", Toast.LENGTH_SHORT).show();
+                });
+        dialog.show();
     }
-
-    final int IMPORT_MODULE_REQUEST_CODE = 1;
 
     // When user clicked the "import" button
     public void fabModulesClicked(View view) {
@@ -254,13 +256,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (requestCode == EDIT_METADATA_REQUEST_CODE) {
             OpenBlocksProjectMetadata metadata =
                     new OpenBlocksProjectMetadata(
-                        data.getStringExtra("app_name"),
-                        data.getStringExtra("package_name"),
-                        data.getStringExtra("version_name"),
-                        Integer.parseInt(data.getStringExtra("version_code"))
+                            data.getStringExtra("app_name"),
+                            data.getStringExtra("package_name"),
+                            data.getStringExtra("version_name"),
+                            Integer.parseInt(data.getStringExtra("version_code"))
                     );
-            
+
             // Create a new project
+            //TODO: Handle project_parser being null (for some reason)
             String new_id = project_parser.generateFreeId(project_ids);
 
             // Initialize the project
@@ -331,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ArrayList<OpenBlocksProjectMetadata> projectMetadataArrayList;
 
         public FragmentAdapter(Context context, FragmentManager fm, int tabCount, HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules, ArrayList<OpenBlocksProjectMetadata> projectMetadataArrayList) {
-            super(fm);
+            super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
             this.context = context;
             this.tabCount = tabCount;
             this.modules = modules;
@@ -339,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         @Override
-        public int getCount(){
+        public int getCount() {
             return tabCount;
         }
 

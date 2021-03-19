@@ -10,7 +10,7 @@ import com.openblocks.android.databinding.ActivityAboutBinding;
 public class AboutActivity extends AppCompatActivity {
 
     private ActivityAboutBinding binding;
-    private Toolbar _actionBar;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,12 +18,13 @@ public class AboutActivity extends AppCompatActivity {
         binding = ActivityAboutBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        _actionBar = binding.toolbarAbout;
-        setSupportActionBar(_actionBar);
+        toolbar = binding.toolbarAbout;
+        setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(true);
+            toolbar.setNavigationOnClickListener(v -> onBackPressed());
         }
     }
 }

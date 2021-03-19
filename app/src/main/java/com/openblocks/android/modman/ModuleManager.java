@@ -29,6 +29,7 @@ import dalvik.system.DexClassLoader;
  * This singleton class is used to add, remove, and import (manage) modules
  */
 public class ModuleManager {
+
     private static ModuleManager single_instance = null;
 
     // HashMap<ModuleType: OpenBlocksModule.Type, Modules: ArrayList<Module>>
@@ -197,15 +198,18 @@ public class ModuleManager {
      * @throws ClassNotFoundException When the module's classpath is wrong / corrupted
      */
     public Class<Object> fetchModule(Context context, Module module) throws ClassNotFoundException {
-        final DexClassLoader classloader =
-                new DexClassLoader(
-                        module.jar_file.getAbsolutePath(),
-                        context.getCodeCacheDir().getAbsolutePath(),
-                        null,
-                        this.getClass().getClassLoader()
-                );
+        if (module != null && module.jar_file != null) {
+            final DexClassLoader classloader =
+                    new DexClassLoader(
+                            module.jar_file.getAbsolutePath(),
+                            context.getCodeCacheDir().getAbsolutePath(),
+                            null,
+                            this.getClass().getClassLoader()
+                    );
+            return (Class<Object>) classloader.loadClass(module.classpath);
+        }
 
-        return (Class<Object>) classloader.loadClass(module.classpath);
+        return null;
     }
 
     /**
@@ -394,7 +398,7 @@ public class ModuleManager {
                 JSONObject module_json = new JSONObject();
                 module_json.put("name", module.name);
                 module_json.put("description", module.description);
-                module_json.put("classpath", module.classpath);;
+                module_json.put("classpath", module.classpath);
                 module_json.put("type", type.toString());
                 module_json.put("version", module.version);
                 module_json.put("lib_version", module.lib_version);

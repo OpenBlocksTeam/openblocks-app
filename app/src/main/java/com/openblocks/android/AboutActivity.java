@@ -5,19 +5,26 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.os.Bundle;
 
+import com.openblocks.android.databinding.ActivityAboutBinding;
+
 public class AboutActivity extends AppCompatActivity {
 
-    private Toolbar _actionBar;
+    private ActivityAboutBinding binding;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_about);
+        binding = ActivityAboutBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        _actionBar = (Toolbar) findViewById(R.id.toolbarAbout);
-        setSupportActionBar(_actionBar);
+        toolbar = binding.toolbarAbout;
+        setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+            toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        }
     }
 }

@@ -12,6 +12,7 @@ public class NewProjectDialog extends ProjectMetadataEditDialog {
 
     public NewProjectDialog(@NonNull Context context, String newProjectId) {
         super(context, new OpenBlocksRawProject(newProjectId, new ArrayList<>()));
+
         projectId = newProjectId;
         titleText = "New project";
         buttonText = "Create project";
@@ -19,5 +20,6 @@ public class NewProjectDialog extends ProjectMetadataEditDialog {
 
     protected void saveMetadata(String appName, String packageName, String versionName, String versionCode) {
         // Create a new project? How?
+        // TODO: 3/20/21 assign: Iyxan23; this
     }
 }

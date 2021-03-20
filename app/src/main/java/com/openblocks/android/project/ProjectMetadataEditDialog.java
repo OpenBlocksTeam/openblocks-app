@@ -21,16 +21,21 @@ public class ProjectMetadataEditDialog extends AlertDialog {
     protected final TextInputEditText versionCode;
     protected final MaterialButton button;
     protected String projectId;
-    //TODO: Set title to "Edit <project name>"
+
+    // TODO: Set title to "Edit <project name>"
+
     protected String titleText = "Edit";
     protected String buttonText = "Save project";
+
     protected OnMetadataEnteredListener listener;
 
     public ProjectMetadataEditDialog(@NonNull Context context, OpenBlocksRawProject project) {
         super(context);
         projectId = project.ID;
+
         DialogEditProjectMetadataBinding binding = DialogEditProjectMetadataBinding.inflate(getLayoutInflater());
         setView(binding.getRoot());
+
         title = binding.textView2;
         appName = binding.editAppName;
         packageName = binding.editPackage;
@@ -42,21 +47,31 @@ public class ProjectMetadataEditDialog extends AlertDialog {
     @Override
     protected void onStart() {
         super.onStart();
+
         setOnDismissListener(dialog -> {
-            if (validateInput()) listener.onMetadataEntered(appName.getText().toString(),
-                    packageName.getText().toString(),
-                    versionName.getText().toString(),
-                    Integer.parseInt(versionCode.getText().toString()));
+            if (validateInput()) {
+                listener.onMetadataEntered(
+                        appName.getText().toString(),
+                        packageName.getText().toString(),
+                        versionName.getText().toString(),
+                        Integer.parseInt(versionCode.getText().toString())
+                );
+            }
         });
+
         title.setText(titleText);
         button.setText(buttonText);
+
         button.setOnClickListener(v -> {
             if (!validateInput()) return;
 
-            saveMetadata(appName.getText().toString(),
+            saveMetadata(
+                    appName.getText().toString(),
                     packageName.getText().toString(),
                     versionName.getText().toString(),
-                    Integer.parseInt(versionCode.getText().toString()));
+                    Integer.parseInt(versionCode.getText().toString())
+            );
+
             dismiss();
         });
     }
@@ -82,37 +97,52 @@ public class ProjectMetadataEditDialog extends AlertDialog {
     protected void saveMetadata(String appName, String packageName, String versionName, int versionCode) {
         final OpenBlocksProjectMetadata metadata = new OpenBlocksProjectMetadata(appName, packageName, versionName, versionCode);
         // What's next?
+        // TODO: 3/20/21 assign: Iyxan23; this
     }
 
     /**
-     * Validates input of all TextInputEditTexts in this dialog. If a text field has invalid data, an error is set, if not, its error gets cleared.
+     * Validates input of all TextInputEditTexts in this dialog. If a text field has invalid data,
+     * an error is set, if not, its error gets cleared.
      *
      * @return If the input in the TextInputEditTexts is valid.
      */
     protected boolean validateInput() {
         if (appName.getText().toString().isEmpty()) {
             appName.setError("Missing app name");
-        } else appName.setError(null);
+        } else {
+            appName.setError(null);
+        }
+
         if (packageName.getText().toString().isEmpty()) {
             packageName.setError("Missing package name");
-        } else packageName.setError(null);
+        } else {
+            packageName.setError(null);
+        }
+
         if (versionName.getText().toString().isEmpty()) {
             versionName.setError("Missing version name");
-        } else versionName.setError(null);
+        } else {
+            versionName.setError(null);
+        }
+
         if (versionCode.getText().toString().isEmpty()) {
             versionCode.setError("Missing version code");
-        } else versionCode.setError(null);
+        } else {
+            versionCode.setError(null);
+        }
 
         return appName.getError() == null && packageName.getError() == null
                 && versionName.getError() == null && versionCode.getError() == null;
     }
 
     /**
-     * A listener class used with a {@link ProjectMetadataEditDialog} class, providing an event when the metadata for a project has been entered, validated and saved.
+     * A listener class used with a {@link ProjectMetadataEditDialog} class, providing an event
+     * when the metadata for a project has been entered, validated and saved.
      */
     public interface OnMetadataEnteredListener {
         /**
-         * Called when metadata for the project has been entered, validated and saved. Returns null if the dialog was dismissed or canceled in any way without saving the data.
+         * Called when metadata for the project has been entered, validated and saved.
+         * Returns null if the dialog was dismissed or canceled in any way without saving the data.
          *
          * @param appName     The project's new application name.
          * @param packageName The project's new APK package name.

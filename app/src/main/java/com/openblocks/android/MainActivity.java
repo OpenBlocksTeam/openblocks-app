@@ -51,14 +51,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     final int EDIT_METADATA_REQUEST_CODE = 2;
     final int IMPORT_MODULE_REQUEST_CODE = 1;
+
     OpenBlocksModule.ProjectManager project_manager;
     OpenBlocksModule.ProjectParser project_parser;
+
     // List of existing project ids
     ArrayList<String> project_ids;
+
     private ActivityMainBinding binding;
+
     private DrawerLayout _drawer;
+
     private FloatingActionButton fabProjects;
     private FloatingActionButton fabModules;
+
     private HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules;
 
     @Override
@@ -136,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Module project_manager_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_MANAGER);
         Module project_parser_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_PARSER);
+
         project_manager = ModuleLoader.load(this, project_manager_module, OpenBlocksModule.ProjectManager.class);
         project_parser = ModuleLoader.load(this, project_parser_module, OpenBlocksModule.ProjectParser.class);
 
@@ -207,6 +214,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 /* project_parser is still null, remove hardcoded ID after adding some modules */
                 .addOnMetadataEnteredListener((appName, packageName, versionName, versionCode) -> {
                     // User has clicked the "OK" button (and the data is valid), project has been saved
+                    // TODO: 3/20/21 assign: Iyxan23; this
                     Toast.makeText(this, "Imagine yourself that a new project with the app name " + appName
                             + ", the package name " + packageName + ", the version name " + versionName
                             + " and the version code " + versionCode + " has been created.", Toast.LENGTH_SHORT).show();
@@ -263,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     );
 
             // Create a new project
-            //TODO: Handle project_parser being null (for some reason)
+            // TODO: Handle project_parser being null (for some reason)
             String new_id = project_parser.generateFreeId(project_ids);
 
             // Initialize the project

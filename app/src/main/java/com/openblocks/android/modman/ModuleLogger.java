@@ -25,6 +25,9 @@ public class ModuleLogger implements Logger {
     SpannableStringBuilder log;
     Class<Object> class_before;
 
+    LiveLog liveLog = log -> { };
+
+
     @Override
     public void debug(Class<Object> module_class, String text) {
         log("DEBUG", module_class, text, 0xFF999999, false);
@@ -68,6 +71,8 @@ public class ModuleLogger implements Logger {
 
         if (bold)
             log.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), start, log.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        liveLog.onLogChange(getText());
     }
 
 
@@ -79,5 +84,13 @@ public class ModuleLogger implements Logger {
 
     public SpannableString getText() {
         return SpannableString.valueOf(log);
+    }
+
+    public void setLiveLog(LiveLog liveLog) {
+        this.liveLog = liveLog;
+    }
+
+    public interface LiveLog {
+        void onLogChange(SpannableString log);
     }
 }

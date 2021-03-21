@@ -1,6 +1,5 @@
 package com.openblocks.android.modman;
 
-import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -73,6 +72,9 @@ public class ModuleLogger implements Logger {
         if (bold)
             log.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), start, log.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
+
+        // TODO: 3/21/21 Because some logs might be bit spammy, we might should optimize
+        //               so the UI doesn't freeze if there are soo many log calls
         liveLog.onLogChange(getText());
     }
 
@@ -87,8 +89,13 @@ public class ModuleLogger implements Logger {
         return SpannableString.valueOf(log);
     }
 
+    public void clearLog() {
+        log.clear();
+    }
+
     public void setLiveLog(LiveLog liveLog) {
         this.liveLog = liveLog;
+        this.liveLog.onLogChange(getText());
     }
 
     public interface LiveLog {

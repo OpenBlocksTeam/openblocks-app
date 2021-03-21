@@ -1,9 +1,6 @@
 # Built application files
 *.apk
-
-# We have an external library, so we have to ignore ignore .aar
-# This project contains the module-interface library's aar file
-# *.aar
+*.aar
 *.ap_
 *.aab
 

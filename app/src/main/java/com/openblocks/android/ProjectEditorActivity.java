@@ -7,23 +7,16 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.preference.internal.PreferenceImageView;
 import androidx.viewpager.widget.ViewPager;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-import com.openblocks.android.adapters.ProjectRecyclerViewAdapter;
-import com.openblocks.android.fragments.main.ModulesFragment;
-import com.openblocks.android.fragments.main.ProjectsFragment;
 import com.openblocks.android.fragments.projecteditor.CodeEditFragment;
-import com.openblocks.android.fragments.projecteditor.ComponentsEditFragment;
+import com.openblocks.android.fragments.projecteditor.LogFragment;
 import com.openblocks.android.fragments.projecteditor.LayoutEditFragment;
 import com.openblocks.android.modman.ModuleLoader;
 import com.openblocks.android.modman.ModuleManager;
@@ -35,9 +28,6 @@ import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksCode;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksLayout;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class ProjectEditorActivity extends AppCompatActivity {
 
@@ -190,7 +180,7 @@ public class ProjectEditorActivity extends AppCompatActivity {
                     return new CodeEditFragment(code, layout, code_save);
                 case 2:
                     // Components is not planned yet, might be removed
-                    return new ComponentsEditFragment();
+                    return new LogFragment();
                 default:
                     return new Fragment();
             }

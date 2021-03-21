@@ -11,9 +11,9 @@ import android.view.ViewGroup;
 import com.openblocks.android.R;
 
 // Component is not planned yet, It's currently used just for a placeholder
-public class ComponentsEditFragment extends Fragment {
+public class LogFragment extends Fragment {
 
-    public ComponentsEditFragment() { }
+    public LogFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -24,6 +24,6 @@ public class ComponentsEditFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_components_edit, container, false);
+        return inflater.inflate(R.layout.fragment_log, container, false);
     }
 }

@@ -22,8 +22,8 @@
                 android:id="@+id/toolBar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                android:background="@color/colorPrimary"
                 android:foregroundTint="@color/colorOnPrimary"
-                android:theme="@style/AppTheme"
                 app:collapseIcon="@drawable/abc_vector_test"
                 app:popupTheme="@style/AppTheme.PopupOverlay"
                 app:title="@string/app_name"
@@ -33,8 +33,7 @@
                 android:id="@+id/tabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
-                android:background="@color/colorPrimary"
+                android:background="@color/colorPrimaryDark"
                 app:tabGravity="center"
                 app:tabIndicatorColor="#FFFFFF"
                 app:tabIndicatorFullWidth="false"
@@ -68,6 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
+            android:onClick="fabProjectsClicked"
             android:src="@drawable/ic_add_white"
             app:backgroundTint="@color/colorAccent" />
 

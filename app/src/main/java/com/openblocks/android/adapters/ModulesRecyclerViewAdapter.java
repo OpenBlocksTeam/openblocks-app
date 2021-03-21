@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.HardwareRenderer;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,14 +28,11 @@ import java.util.HashMap;
 
 public class ModulesRecyclerViewAdapter extends RecyclerView.Adapter<ModulesRecyclerViewAdapter.ViewHolder> {
     private static final String TAG = "ModuleRVAdapter";
-
+    WeakReference<Activity> activity;
     // TODO: REPLACE THIS WITH JUST MODULE MANAGER
     private HashMap<OpenBlocksModule.Type, ArrayList<Module>> data = new HashMap<>();
     private ArrayList<Module> modules;
-
     private ModuleManager moduleManager;
-
-    WeakReference<Activity> activity;
 
     public ModulesRecyclerViewAdapter(Activity activity) {
         this.activity = new WeakReference<>(activity);
@@ -113,10 +109,11 @@ public class ModulesRecyclerViewAdapter extends RecyclerView.Adapter<ModulesRecy
     @Override
     public int getItemCount() {
         if (data == null) return 0;
-        
+
         int sum = 0;
 
-        for (ArrayList<Module> modules: data.values()) {
+        for (ArrayList<Module> modules : data.values()) {
+            if (modules == null) continue;
             sum += modules.size();
         }
 

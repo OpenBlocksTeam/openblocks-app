@@ -63,6 +63,10 @@ public class ProjectEditorActivity extends AppCompatActivity {
         OpenBlocksModule.ProjectManager project_manager_instance = ModuleLoader.load(this, project_manager, OpenBlocksModule.ProjectManager.class);
         OpenBlocksModule.ProjectParser project_parser_instance = ModuleLoader.load(this, project_parser, OpenBlocksModule.ProjectParser.class);
 
+        // Initialize these modules
+        project_manager_instance.initialize(this);
+        project_parser_instance.initialize(this);
+
         // Get the project
         OpenBlocksRawProject project = project_manager_instance.getProject(project_id);
 
@@ -72,7 +76,6 @@ public class ProjectEditorActivity extends AppCompatActivity {
         metadata = project_parser_instance.parseMetadata(project);
 
         // Create some save callbacks
-        // TODO: 3/10/21 Create a reverse of parse for PROJECT_PARSER module
         SaveCallback<OpenBlocksCode> code_save = code_new -> {
             code = code_new;
 
@@ -119,7 +122,7 @@ public class ProjectEditorActivity extends AppCompatActivity {
         String apk_output_path = getSharedPreferences("data", MODE_PRIVATE).getString("apk_output_path", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
         run_fab.setOnClickListener(view -> {
             try {
-                compiler.compile(code, layout, apk_output_path);
+                compiler.compile(metadata, code, layout, apk_output_path);
             } catch (CompileException e) {
                 e.printStackTrace();
                 AlertDialog.Builder builder = new AlertDialog.Builder(ProjectEditorActivity.this);

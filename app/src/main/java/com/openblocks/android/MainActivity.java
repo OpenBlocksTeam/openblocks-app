@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,10 +32,12 @@ import com.openblocks.android.fragments.main.ModulesFragment;
 import com.openblocks.android.fragments.main.ProjectsFragment;
 import com.openblocks.android.modman.ModuleJsonCorruptedException;
 import com.openblocks.android.modman.ModuleLoader;
+import com.openblocks.android.modman.ModuleLogger;
 import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.android.project.NewProjectDialog;
 import com.openblocks.moduleinterface.OpenBlocksModule;
+import com.openblocks.moduleinterface.exceptions.ParseException;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksCode;
@@ -52,8 +55,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     final int EDIT_METADATA_REQUEST_CODE = 2;
     final int IMPORT_MODULE_REQUEST_CODE = 1;
 
+    // Used to list, get and read project
     OpenBlocksModule.ProjectManager project_manager;
     OpenBlocksModule.ProjectParser project_parser;
+
+    // Used to initialize / create a new project
+    OpenBlocksModule.ProjectCodeGUI code_editor;
+    OpenBlocksModule.ProjectLayoutGUI layout_editor;
 
     // List of existing project ids
     ArrayList<String> project_ids;
@@ -66,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FloatingActionButton fabModules;
 
     private HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules;
+
+    private ModuleLogger logger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,14 +150,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Load Projects ===========================================================================
 
-        Module project_manager_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_MANAGER);
-        Module project_parser_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_PARSER);
+        logger = ModuleLogger.getInstance();
+
+        Module project_manager_module   = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_MANAGER);
+        Module project_parser_module    = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_PARSER);
+        Module code_editor_module       = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_CODE_GUI);
+        Module layout_editor_module     = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_LAYOUT_GUI);
 
         project_manager = ModuleLoader.load(this, project_manager_module, OpenBlocksModule.ProjectManager.class);
-        project_parser = ModuleLoader.load(this, project_parser_module, OpenBlocksModule.ProjectParser.class);
+        project_parser  = ModuleLoader.load(this, project_parser_module, OpenBlocksModule.ProjectParser.class);
+        code_editor     = ModuleLoader.load(this, code_editor_module, OpenBlocksModule.ProjectCodeGUI.class);
+        layout_editor   = ModuleLoader.load(this, layout_editor_module, OpenBlocksModule.ProjectLayoutGUI.class);
 
-        if (project_manager != null) project_manager.initialize(this);
-        if (project_parser != null) project_parser.initialize(this);
+        if (project_manager != null) project_manager.initialize(this, logger);
+        if (project_parser != null) project_parser.initialize(this, logger);
+        if (code_editor != null) code_editor.initialize(this, logger);
+        if (layout_editor != null) layout_editor.initialize(this, logger);
 
         ArrayList<OpenBlocksProjectMetadata> projects_metadata = new ArrayList<>();
 
@@ -158,7 +176,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             for (OpenBlocksRawProject project : projects) {
                 project_ids.add(project.ID);
 
-                projects_metadata.add(project_parser.parseMetadata(project));
+                try {
+                    projects_metadata.add(project_parser.parseMetadata(project));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    logger.err(project_parser.getClass(), "");
+                }
             }
         }
 
@@ -275,8 +298,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String new_id = project_parser.generateFreeId(project_ids);
 
             // Initialize the project
-            Pair<OpenBlocksCode, OpenBlocksLayout> code_layout = project_parser.initializeEmptyProject();
-            OpenBlocksRawProject new_project = project_parser.saveProject(metadata, code_layout.first, code_layout.second);
+            OpenBlocksCode initialized_code = code_editor.initializeNewCode();
+            OpenBlocksLayout initialized_layout = layout_editor.initializeNewLayout();
+            OpenBlocksRawProject new_project = project_parser.saveProject(metadata, initialized_code, initialized_layout);
 
             // Save the project
             project_manager.saveProject(new_project);

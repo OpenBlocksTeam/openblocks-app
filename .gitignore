@@ -75,7 +75,7 @@ fastlane/test_output
 fastlane/readme.md
 
 # Version control
-vcs.xml
+.idea/vcs.xml
 
 # lint
 lint/intermediates/
@@ -83,3 +83,6 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+
+# "Un-ignore" binaries (because we need them to build apps)
+!app/src/main/resources/lib/**/

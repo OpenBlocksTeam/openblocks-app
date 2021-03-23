@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     OpenBlocksModule.ProjectParser project_parser;
 
     // Used to initialize / create a new project
-    OpenBlocksModule.ProjectCodeGUI code_editor;
+    OpenBlocksModule.BlocksCollection blocks_collection;
     OpenBlocksModule.ProjectLayoutGUI layout_editor;
 
     // List of existing project ids
@@ -155,14 +155,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Module code_editor_module       = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_CODE_GUI);
         Module layout_editor_module     = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_LAYOUT_GUI);
 
-        project_manager = ModuleLoader.load(this, project_manager_module, OpenBlocksModule.ProjectManager.class);
-        project_parser  = ModuleLoader.load(this, project_parser_module, OpenBlocksModule.ProjectParser.class);
-        code_editor     = ModuleLoader.load(this, code_editor_module, OpenBlocksModule.ProjectCodeGUI.class);
-        layout_editor   = ModuleLoader.load(this, layout_editor_module, OpenBlocksModule.ProjectLayoutGUI.class);
+        project_manager     = ModuleLoader.load(this, project_manager_module, OpenBlocksModule.ProjectManager.class);
+        project_parser      = ModuleLoader.load(this, project_parser_module, OpenBlocksModule.ProjectParser.class);
+        blocks_collection   = ModuleLoader.load(this, code_editor_module, OpenBlocksModule.BlocksCollection.class);
+        layout_editor       = ModuleLoader.load(this, layout_editor_module, OpenBlocksModule.ProjectLayoutGUI.class);
 
         if (project_manager != null) project_manager.initialize(this, logger);
         if (project_parser != null) project_parser.initialize(this, logger);
-        if (code_editor != null) code_editor.initialize(this, logger);
         if (layout_editor != null) layout_editor.initialize(this, logger);
 
         ArrayList<OpenBlocksProjectMetadata> projects_metadata = new ArrayList<>();
@@ -302,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String new_id = project_parser.generateFreeId(project_ids);
 
             // Initialize the project
-            OpenBlocksCode initialized_code = code_editor.initializeNewCode();
+            OpenBlocksCode initialized_code = blocks_collection.initializeNewCode();
             OpenBlocksLayout initialized_layout = layout_editor.initializeNewLayout();
             OpenBlocksRawProject new_project = project_parser.saveProject(metadata, initialized_code, initialized_layout);
 

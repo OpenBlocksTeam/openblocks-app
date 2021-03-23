@@ -28,8 +28,12 @@ import com.openblocks.moduleinterface.exceptions.CompileException;
 import com.openblocks.moduleinterface.exceptions.ParseException;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
+import com.openblocks.moduleinterface.models.compiler.IncludedBinary;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksCode;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksLayout;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ProjectEditorActivity extends AppCompatActivity {
 
@@ -116,6 +120,9 @@ public class ProjectEditorActivity extends AppCompatActivity {
 
         Module compiler_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_COMPILER);
         OpenBlocksModule.ProjectCompiler compiler = ModuleLoader.load(this, compiler_module, OpenBlocksModule.ProjectCompiler.class);
+
+        // Initialize the compiler
+        compiler.initializeCompiler((ArrayList<IncludedBinary>) Arrays.asList(IncludedBinaries.INCLUDED_BINARIES));
 
         FloatingActionButton run_fab = findViewById(R.id.project_editor_run);
 

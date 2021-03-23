@@ -230,15 +230,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // When the user clicked the "New Project" button
     public void fabProjectsClicked(View view) {
         // Show the "New project" dialog
-        NewProjectDialog dialog = new NewProjectDialog(this, /* project_parser.generateFreeId(project_ids) */ "601")
-                /* project_parser is still null, remove hardcoded ID after adding some modules */
+        NewProjectDialog dialog = new NewProjectDialog(this, project_parser.generateFreeId(project_ids))
                 .addOnMetadataEnteredListener((appName, packageName, versionName, versionCode) -> {
-                    // User has clicked the "OK" button (and the data is valid), project has been saved
-                    // TODO: 3/20/21 assign: Iyxan23; this
-                    Toast.makeText(this, "Imagine yourself that a new project with the app name " + appName
-                            + ", the package name " + packageName + ", the version name " + versionName
-                            + " and the version code " + versionCode + " has been created.", Toast.LENGTH_SHORT).show();
+                    // User has clicked the "OK" button (and the data is valid), Create a new project
+                    OpenBlocksProjectMetadata metadata =
+                            new OpenBlocksProjectMetadata(
+                                    appName,
+                                    packageName,
+                                    versionName,
+                                    versionCode
+                            );
+
+                    // TODO: Handle project_parser being null (for some reason)
+                    String new_id = project_parser.generateFreeId(project_ids);
+
+                    // Initialize the project
+                    OpenBlocksCode initialized_code = blocks_collection.initializeNewCode();
+                    OpenBlocksLayout initialized_layout = layout_editor.initializeNewLayout();
+                    OpenBlocksRawProject new_project = project_parser.saveProject(metadata, initialized_code, initialized_layout);
+
+                    // Save the project
+                    project_manager.saveProject(new_project);
+
+                    project_ids.add(new_id);
+
+                    // Then finally, open the project
+                    Intent i = new Intent(this, ProjectEditorActivity.class);
+                    i.putExtra("project_id", new_id);
+                    startActivity(i);
                 });
+
         dialog.show();
     }
 

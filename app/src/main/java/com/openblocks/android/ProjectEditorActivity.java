@@ -121,6 +121,8 @@ public class ProjectEditorActivity extends AppCompatActivity {
         Module compiler_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_COMPILER);
         OpenBlocksModule.ProjectCompiler compiler = ModuleLoader.load(this, compiler_module, OpenBlocksModule.ProjectCompiler.class);
 
+        IncludedBinaries.init(this);
+
         // Initialize the compiler
         compiler.initializeCompiler((ArrayList<IncludedBinary>) Arrays.asList(IncludedBinaries.INCLUDED_BINARIES));
 

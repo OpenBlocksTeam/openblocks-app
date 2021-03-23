@@ -48,24 +48,13 @@ public class ProjectMetadataEditDialog extends AlertDialog {
     protected void onStart() {
         super.onStart();
 
-        setOnDismissListener(dialog -> {
-            if (validateInput()) {
-                listener.onMetadataEntered(
-                        appName.getText().toString(),
-                        packageName.getText().toString(),
-                        versionName.getText().toString(),
-                        Integer.parseInt(versionCode.getText().toString())
-                );
-            }
-        });
-
         title.setText(titleText);
         button.setText(buttonText);
 
         button.setOnClickListener(v -> {
             if (!validateInput()) return;
 
-            saveMetadata(
+            listener.onMetadataEntered(
                     appName.getText().toString(),
                     packageName.getText().toString(),
                     versionName.getText().toString(),
@@ -84,20 +73,6 @@ public class ProjectMetadataEditDialog extends AlertDialog {
     public <T extends ProjectMetadataEditDialog> T addOnMetadataEnteredListener(OnMetadataEnteredListener listener) {
         this.listener = listener;
         return (T) this;
-    }
-
-    /**
-     * Save the project's metadata.
-     *
-     * @param appName     The project's application name.
-     * @param packageName The project's APK package name.
-     * @param versionName The project's version name.
-     * @param versionCode The project's version code.
-     */
-    protected void saveMetadata(String appName, String packageName, String versionName, int versionCode) {
-        final OpenBlocksProjectMetadata metadata = new OpenBlocksProjectMetadata(appName, packageName, versionName, versionCode);
-        // What's next?
-        // TODO: 3/20/21 assign: Iyxan23; this
     }
 
     /**

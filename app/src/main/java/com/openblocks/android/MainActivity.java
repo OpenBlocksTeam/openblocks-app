@@ -251,13 +251,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     // Save the project
                     project_manager.saveProject(new_project);
-
-                    project_ids.add(new_id);
-
-                    // Then finally, open the project
-                    Intent i = new Intent(this, ProjectEditorActivity.class);
-                    i.putExtra("project_id", new_id);
-                    startActivity(i);
                 });
 
         dialog.show();

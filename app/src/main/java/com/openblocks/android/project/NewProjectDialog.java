@@ -17,9 +17,4 @@ public class NewProjectDialog extends ProjectMetadataEditDialog {
         titleText = "New project";
         buttonText = "Create project";
     }
-
-    protected void saveMetadata(String appName, String packageName, String versionName, String versionCode) {
-        // Create a new project? How?
-        // TODO: 3/20/21 assign: Iyxan23; this
-    }
 }

@@ -249,6 +249,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     OpenBlocksLayout initialized_layout = layout_editor.initializeNewLayout();
                     OpenBlocksRawProject new_project = project_parser.saveProject(metadata, initialized_code, initialized_layout);
 
+                    new_project.ID = new_id;
+
                     // Save the project
                     project_manager.saveProject(new_project);
                 });

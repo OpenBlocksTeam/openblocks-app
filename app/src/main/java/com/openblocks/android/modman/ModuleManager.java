@@ -39,6 +39,7 @@ public class ModuleManager {
     // NOTE: modules in active_modules also exists in the variable modules
     HashMap<OpenBlocksModule.Type, Module> active_modules;
 
+    // A list of modules with their jar
     ArrayList<Pair<File, ArrayList<Module>>> modules_with_jar;
 
     private ModuleManager() { }
@@ -85,8 +86,9 @@ public class ModuleManager {
         ArrayList<File> jar_files = new ArrayList<>();
 
         // Clear everything first
-        modules = new HashMap<>();
-        active_modules = new HashMap<>();
+        modules.clear();
+        active_modules.clear();
+        modules_with_jar.clear();
 
         /* The module folder should contain something like this:
          *

@@ -9,6 +9,7 @@ import com.openblocks.android.helpers.FileHelper;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.moduleinterface.OpenBlocksModule;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,6 +38,8 @@ public class ModuleManager {
 
     // NOTE: modules in active_modules also exists in the variable modules
     HashMap<OpenBlocksModule.Type, Module> active_modules;
+
+    ArrayList<Pair<File, ArrayList<Module>>> modules_with_jar;
 
     private ModuleManager() { }
 
@@ -95,7 +98,7 @@ public class ModuleManager {
          *  L modules.json <- Contains information about these jars, like description, name, classpath, etc
          */
 
-        /* modules.json should be something like this:
+        /* Old modules.json should be something like this:
          * {
          *   "active_modules": {
          *     "PROJECT_MANAGER": "IyxanProjectManager.jar",
@@ -111,6 +114,38 @@ public class ModuleManager {
          *       "version": 1, // This is the module's version
          *       "lib_version": 1, // This is the library's (OpenBlocksInterface) version
          *     }
+         *   }
+         * }
+         */
+
+        /* New modules.json structure, enabling multiple modules in a single jar
+         * https://github.com/OpenBlocksTeam/openblocks-module-interface/wiki/Multiple-modules-in-a-single-jar
+         *
+         * {
+         *   "active_modules": {
+         *     "PROJECT_MANAGER": {"jar": "IyxanBofaModules.jar", "name": "IyxanProjectManager"},
+         *     "PROJECT_COMPILER": {"jar": "IyxanBofaModules.jar", "name": "BofaProjectParser"},
+         *     ...
+         *   },
+         *   "modules": {
+         *     "IyxanBofaModules.jar": [
+         *       {
+         *         "name": "IyxanProjectManager",
+         *         "description": "Iyxan's personal project manager",
+         *         "classpath": "com.openblocks.modules.IyxanProjectManager",
+         *         "version": 1,
+         *         "lib_version": 1,
+         *         "type": "PROJECT_MANAGER"
+         *       },
+         *       {
+         *         "name": "BofaProjectParser",
+         *         "description": "Airplane-optimized project parser ✈️",
+         *         "classpath": "com.openblocks.modules.BofaProjectParser",
+         *         "version": 1.1,
+         *         "lib_version": 1,
+         *         "type": "PROJECT_PARSER"
+         *       }
+         *     ]
          *   }
          * }
          */
@@ -152,10 +187,10 @@ public class ModuleManager {
                 String filename = jar_file.getName();
 
                 // Get the module info from the modules.json by it's name
-                JSONObject current_module_info = modules_information.getJSONObject(filename);
+                JSONObject current_module_jar_info = modules_information.getJSONObject(filename);
 
                 // Get the module type
-                OpenBlocksModule.Type module_type = OpenBlocksModule.Type.valueOf(current_module_info.getString("type"));
+                OpenBlocksModule.Type module_type = OpenBlocksModule.Type.valueOf(current_module_jar_info.getString("type"));
 
                 // Check if the arraylist is already initialized
                 if (!modules.containsKey(module_type)) {
@@ -163,27 +198,41 @@ public class ModuleManager {
                     modules.put(module_type, new ArrayList<>());
                 }
 
-                Module module = new Module(
-                        filename,
-                        current_module_info.getString("name"),
-                        current_module_info.getString("description"),
-                        current_module_info.getString("classpath"),
-                        current_module_info.getInt("version"),
-                        current_module_info.getInt("lib_version"),
-                        jar_file,
-                        module_type
-                );
+                // Because there might be multiple modules inside the jar, we should loop
+                // for each jsonobject in the "modules" array
 
-                // ohk, add the module
-                Objects.requireNonNull(
-                        modules.get(module_type)
-                ).add(module);
+                JSONArray modules_inside_jar = current_module_jar_info.getJSONArray("modules");
+                ArrayList<Module> modules_inside_jar_list = new ArrayList<>();
 
-                // Check if this module exists in the active modules list
-                if (active_modules_json.getString(module_type.toString()).equals(filename)) {
-                    // Alright, this module is active, add it to this active_modules hashmap
-                    active_modules.put(module_type, module);
+                for (int i = 0; i < modules_inside_jar.length(); i++) {
+                    JSONObject current_module_info = modules_inside_jar.getJSONObject(i);
+
+                    Module module = new Module(
+                            filename,
+                            current_module_info.getString("name"),
+                            current_module_info.getString("description"),
+                            current_module_info.getString("classpath"),
+                            current_module_info.getInt("version"),
+                            current_module_info.getInt("lib_version"),
+                            jar_file,
+                            module_type
+                    );
+
+                    modules_inside_jar_list.add(module);
+
+                    // ohk, add the module
+                    Objects.requireNonNull(
+                            modules.get(module_type)
+                    ).add(module);
+
+                    // Check if this module exists in the active modules list
+                    if (active_modules_json.getString(module_type.toString()).equals(filename)) {
+                        // Alright, this module is active, add it to this active_modules hashmap
+                        active_modules.put(module_type, module);
+                    }
                 }
+
+                modules_with_jar.add(new Pair<>(jar_file, modules_inside_jar_list));
 
             } catch (JSONException ignored) { } // We're gonna ignore the error, and go on
         }
@@ -224,8 +273,8 @@ public class ModuleManager {
      * @throws IOException When an IO error occurs
      * @throws JSONException When the module is corrupted / malformed
      */
-    public Module importModule(Context context, String path) throws IOException, JSONException {
-        Module module = new Module();
+    public ArrayList<Module> importModule(Context context, String path) throws IOException, JSONException {
+        ArrayList<Module> modules_inside_jar = new ArrayList<>();
         OpenBlocksModule.Type module_type = null;
         File modules_dir = new File(context.getFilesDir(), "modules");
         File jar_file = null;
@@ -265,14 +314,33 @@ public class ModuleManager {
 
                 file_data = result.toString("UTF-8");
 
+                // Read the manifest
                 JSONObject manifest = new JSONObject(file_data);
+
+                Module module = new Module();
                 module.name = manifest.getString("name");
                 module.description = manifest.getString("description");
                 module.classpath = manifest.getString("classpath");
                 module.version = manifest.getInt("version");
                 module.lib_version = manifest.getInt("lib_version");
 
+                // Set the jar metadata
+                module.jar_file = jar_file;
+                module.filename = jar_file.getName();
+
+                // Add it to this arraylist
+                modules_inside_jar.add(module);
+
                 module_type = OpenBlocksModule.Type.valueOf(manifest.getString("type"));
+
+                // Check if this module_type hasn't been initialized
+                if (!modules.containsKey(module_type)) {
+                    modules.put(module_type, new ArrayList<>());
+                }
+
+                // alright, let's put it on our modules list
+                modules .get(module_type)
+                        .add(module);
             }
 
             // Close this ZipEntry
@@ -292,21 +360,8 @@ public class ModuleManager {
             throw new IOException("Jar file doesn't exists");
         }
 
-        // ok, let's put the jar_file here
-        module.jar_file = jar_file;
-        module.filename = jar_file.getName();
-
-        // Check if this module_type hasn't been initialized
-        if (!modules.containsKey(module_type)) {
-            modules.put(module_type, new ArrayList<>());
-        }
-
-        // alright, let's put it on our modules list
-        modules .get(module_type)
-                .add(module);
-
         // Ight we can return the module
-        return module;
+        return modules_inside_jar;
     }
 
     /**
@@ -385,27 +440,26 @@ public class ModuleManager {
         File modules_json = new File(modules_directory, "modules.json");
         JSONObject modules_info = new JSONObject(FileHelper.readFile(modules_json));
 
-        // Loop per each type
-        for (OpenBlocksModule.Type type: modules.keySet()) {
-            if (!modules.containsKey(type))
-                continue;
+        // Loop per each modules
+        for (Pair<File, ArrayList<Module>> jar_modules_pair : modules_with_jar) {
 
-            for (int i = 0; i < modules.get(type).size(); i++) {
-                // Get the module
-                Module module = modules.get(type).get(i);
+            JSONArray modules_inside_jar = new JSONArray();
 
+            for (Module module : jar_modules_pair.second) {
                 // Put the module into a JSONObject
                 JSONObject module_json = new JSONObject();
                 module_json.put("name", module.name);
                 module_json.put("description", module.description);
                 module_json.put("classpath", module.classpath);
-                module_json.put("type", type.toString());
+                module_json.put("type", module.module_type);
                 module_json.put("version", module.version);
                 module_json.put("lib_version", module.lib_version);
 
                 // Finally, update the module
-                modules_info.getJSONObject("modules").put(modules.get(type).get(i).filename, module_json);
+                modules_inside_jar.put(module_json);
             }
+
+            modules_info.getJSONObject("modules").put(jar_modules_pair.first.getName(), modules_inside_jar);
         }
 
         // Then put it back

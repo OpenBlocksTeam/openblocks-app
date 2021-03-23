@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (requestCode == IMPORT_MODULE_REQUEST_CODE) {
             // Get the URI
             Uri uri = data.getData();
-            Module module;
+            ArrayList<Module> module;
 
             // Then import the module
             try {
@@ -278,7 +278,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return;
             }
 
-            Toast.makeText(this, "Module " + module.name + " has successfully imported, restarting activity", Toast.LENGTH_SHORT).show();
+            StringBuilder module_string = new StringBuilder();
+
+            for (Module module1 : module) {
+                module_string.append(module1.name).append(" ");
+            }
+
+            Toast.makeText(this, "Module " + module_string + "has successfully imported, restarting activity", Toast.LENGTH_SHORT).show();
 
             // Ok then refresh our activity
             recreate();

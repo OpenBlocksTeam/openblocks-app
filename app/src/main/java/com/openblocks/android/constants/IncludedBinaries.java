@@ -1,4 +1,4 @@
-package com.openblocks.android;
+package com.openblocks.android.constants;
 
 import android.content.Context;
 

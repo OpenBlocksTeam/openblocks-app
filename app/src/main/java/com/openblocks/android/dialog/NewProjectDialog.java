@@ -1,4 +1,4 @@
-package com.openblocks.android.project;
+package com.openblocks.android.dialog;
 
 import android.content.Context;
 

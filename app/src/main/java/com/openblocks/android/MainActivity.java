@@ -33,7 +33,7 @@ import com.openblocks.android.modman.ModuleLoader;
 import com.openblocks.android.modman.ModuleLogger;
 import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
-import com.openblocks.android.project.NewProjectDialog;
+import com.openblocks.android.dialog.NewProjectDialog;
 import com.openblocks.moduleinterface.OpenBlocksModule;
 import com.openblocks.moduleinterface.exceptions.ParseException;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;

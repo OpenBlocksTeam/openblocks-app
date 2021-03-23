@@ -1,4 +1,4 @@
-package com.openblocks.android.project;
+package com.openblocks.android.dialog;
 
 import android.content.Context;
 import android.widget.TextView;
@@ -9,7 +9,6 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.openblocks.android.databinding.DialogEditProjectMetadataBinding;
-import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
 
 public class ProjectMetadataEditDialog extends AlertDialog {

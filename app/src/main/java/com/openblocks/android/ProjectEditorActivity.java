@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.openblocks.android.constants.IncludedBinaries;
 import com.openblocks.android.fragments.projecteditor.CodeEditFragment;
 import com.openblocks.android.fragments.projecteditor.LogFragment;
 import com.openblocks.android.fragments.projecteditor.LayoutEditFragment;

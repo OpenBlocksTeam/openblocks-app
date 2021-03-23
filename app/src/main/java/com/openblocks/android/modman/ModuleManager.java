@@ -79,7 +79,7 @@ public class ModuleManager {
 
         JSONObject modules_information = null;
         JSONObject active_modules_json = null;
-        ArrayList<Pair<String, File>> jar_files = new ArrayList<>();
+        ArrayList<File> jar_files = new ArrayList<>();
 
         // Clear everything first
         modules = new HashMap<>();
@@ -137,7 +137,7 @@ public class ModuleManager {
 
             } else {
                 // This is a jar file
-                jar_files.add(new Pair<>(module.getName(), module));
+                jar_files.add(module);
             }
         }
 
@@ -147,9 +147,9 @@ public class ModuleManager {
         }
 
         // Loop per every jar files
-        for (Pair<String, File> jar_file : jar_files) {
+        for (File jar_file : jar_files) {
             try {
-                String filename = jar_file.first;
+                String filename = jar_file.getName();
 
                 // Get the module info from the modules.json by it's name
                 JSONObject current_module_info = modules_information.getJSONObject(filename);
@@ -170,7 +170,7 @@ public class ModuleManager {
                         current_module_info.getString("classpath"),
                         current_module_info.getInt("version"),
                         current_module_info.getInt("lib_version"),
-                        jar_file.second,
+                        jar_file,
                         module_type
                 );
 

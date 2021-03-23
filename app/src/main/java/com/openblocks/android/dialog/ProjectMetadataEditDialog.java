@@ -9,6 +9,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.openblocks.android.databinding.DialogEditProjectMetadataBinding;
+import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
 
 public class ProjectMetadataEditDialog extends AlertDialog {
@@ -28,9 +29,9 @@ public class ProjectMetadataEditDialog extends AlertDialog {
 
     protected OnMetadataEnteredListener listener;
 
-    public ProjectMetadataEditDialog(@NonNull Context context, OpenBlocksRawProject project) {
+    public ProjectMetadataEditDialog(@NonNull Context context, OpenBlocksProjectMetadata metadata, String project_id) {
         super(context);
-        projectId = project.ID;
+        projectId = project_id;
 
         DialogEditProjectMetadataBinding binding = DialogEditProjectMetadataBinding.inflate(getLayoutInflater());
         setView(binding.getRoot());
@@ -41,6 +42,12 @@ public class ProjectMetadataEditDialog extends AlertDialog {
         versionName = binding.editVersionName;
         versionCode = binding.editVersionCode;
         button = binding.okButton;
+
+        // Set these values
+        appName.setText(metadata.getName());
+        packageName.setText(metadata.getPackageName());
+        versionName.setText(metadata.getVersionName());
+        versionCode.setText(metadata.getVersionCode());
     }
 
     @Override

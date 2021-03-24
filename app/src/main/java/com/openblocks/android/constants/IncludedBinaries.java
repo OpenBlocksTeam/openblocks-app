@@ -14,17 +14,17 @@ public class IncludedBinaries {
                 new IncludedBinary(
                         "aapt",
                         1,
-                        nativeLibraryDir.concat("/aapt")
+                        nativeLibraryDir.concat("/bin/aapt")
                 ),
                 new IncludedBinary(
                         "aapt2",
                         1,
-                        nativeLibraryDir.concat("/aapt2")
+                        nativeLibraryDir.concat("/bin/aapt2")
                 ),
                 new IncludedBinary(
                         "zipalign",
                         1,
-                        nativeLibraryDir.concat("/zipalign")
+                        nativeLibraryDir.concat("/bin/zipalign")
                 ),
         };
     }

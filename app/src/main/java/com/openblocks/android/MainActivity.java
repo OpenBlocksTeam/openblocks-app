@@ -231,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void fabProjectsClicked(View view) {
         // Show the "New project" dialog
         NewProjectDialog dialog = new NewProjectDialog(this, project_parser.generateFreeId(project_ids))
-                .addOnMetadataEnteredListener((appName, packageName, versionName, versionCode) -> {
+                .addOnMetadataSavedListener((appName, packageName, versionName, versionCode) -> {
                     // User has clicked the "OK" button (and the data is valid), Create a new project
                     OpenBlocksProjectMetadata metadata =
                             new OpenBlocksProjectMetadata(

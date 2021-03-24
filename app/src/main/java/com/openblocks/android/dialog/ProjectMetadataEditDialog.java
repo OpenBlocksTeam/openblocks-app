@@ -10,7 +10,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.openblocks.android.databinding.DialogEditProjectMetadataBinding;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
-import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
 
 public class ProjectMetadataEditDialog extends AlertDialog {
 
@@ -19,7 +18,7 @@ public class ProjectMetadataEditDialog extends AlertDialog {
     protected final TextInputEditText packageName;
     protected final TextInputEditText versionName;
     protected final TextInputEditText versionCode;
-    protected final MaterialButton button;
+    protected final MaterialButton saveButton;
     protected String projectId;
 
     // TODO: Set title to "Edit <project name>"
@@ -27,7 +26,7 @@ public class ProjectMetadataEditDialog extends AlertDialog {
     protected String titleText = "Edit";
     protected String buttonText = "Save project";
 
-    protected OnMetadataEnteredListener listener;
+    protected OnMetadataSavedListener listener;
 
     public ProjectMetadataEditDialog(@NonNull Context context, OpenBlocksProjectMetadata metadata, String project_id) {
         super(context);
@@ -41,7 +40,7 @@ public class ProjectMetadataEditDialog extends AlertDialog {
         packageName = binding.editPackage;
         versionName = binding.editVersionName;
         versionCode = binding.editVersionCode;
-        button = binding.okButton;
+        saveButton = binding.okButton;
 
         // Set these values
         appName.setText(metadata.getName());
@@ -55,12 +54,12 @@ public class ProjectMetadataEditDialog extends AlertDialog {
         super.onStart();
 
         title.setText(titleText);
-        button.setText(buttonText);
+        saveButton.setText(buttonText);
 
-        button.setOnClickListener(v -> {
+        saveButton.setOnClickListener(v -> {
             if (!validateInput()) return;
 
-            listener.onMetadataEntered(
+            listener.onMetadataSaved(
                     appName.getText().toString(),
                     packageName.getText().toString(),
                     versionName.getText().toString(),
@@ -72,11 +71,11 @@ public class ProjectMetadataEditDialog extends AlertDialog {
     }
 
     /**
-     * @param listener The {@link OnMetadataEnteredListener} object to register as callback for this dialog instance.
      * @param <T>      Any class extending {@link ProjectMetadataEditDialog}.
+     * @param listener The {@link OnMetadataSavedListener} object to register as callback for this dialog instance.
      * @return The current {@link ProjectMetadataEditDialog}.
      */
-    public <T extends ProjectMetadataEditDialog> T addOnMetadataEnteredListener(OnMetadataEnteredListener listener) {
+    public <T extends ProjectMetadataEditDialog> T addOnMetadataSavedListener(OnMetadataSavedListener listener) {
         this.listener = listener;
         return (T) this;
     }
@@ -118,18 +117,17 @@ public class ProjectMetadataEditDialog extends AlertDialog {
 
     /**
      * A listener class used with a {@link ProjectMetadataEditDialog} class, providing an event
-     * when the metadata for a project has been entered, validated and saved.
+     * when the metadata for a project has been saved.
      */
-    public interface OnMetadataEnteredListener {
+    public interface OnMetadataSavedListener {
         /**
-         * Called when metadata for the project has been entered, validated and saved.
-         * Returns null if the dialog was dismissed or canceled in any way without saving the data.
+         * Called when metadata for the project has been saved.
          *
          * @param appName     The project's new application name.
          * @param packageName The project's new APK package name.
          * @param versionName The project's new version name.
          * @param versionCode The project's new version code.
          */
-        void onMetadataEntered(String appName, String packageName, String versionName, int versionCode);
+        void onMetadataSaved(String appName, String packageName, String versionName, int versionCode);
     }
 }

@@ -4,7 +4,11 @@
 
 <h1 align="center">OpenBlocks</h1>
 
-<p align="center"><img src="https://github.com/OpenBlocksTeam/openblocks-app/actions/workflows/gradle.yml/badge.svg" href="https://github.com/OpenBlocksTeam/openblocks-app/actions/workflows/gradle.yml" alt="Java CI with Gradle"/></p>
+<p align="center">
+  <img src="https://github.com/OpenBlocksTeam/openblocks-app/actions/workflows/gradle.yml/badge.svg" href="https://github.com/OpenBlocksTeam/openblocks-app/actions/workflows/gradle.yml" alt="Java CI with Gradle"/>
+  <img src="https://img.shields.io/discord/812214674669830154" href="https://openblocks.tk/invite" alt="Discord server">
+  <img src="https://img.shields.io/liberapay/patrons/OpenBlocks" href="https://liberapay.com/OpenBlocks" alt="Donate to OpenBlocks"/>
+</p>
 
 An open source, modular alternative of sketchware. Create your own app in android using block programming like scratch!
 

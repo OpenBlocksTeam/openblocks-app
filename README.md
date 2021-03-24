@@ -4,6 +4,8 @@
 
 <h1 align="center">OpenBlocks</h1>
 
+<p align="center"><img src="https://github.com/OpenBlocksTeam/openblocks-app/actions/workflows/gradle.yml/badge.svg" href="https://github.com/OpenBlocksTeam/openblocks-app/actions/workflows/gradle.yml" alt="Java CI with Gradle"/></p>
+
 An open source, modular alternative of sketchware. Create your own app in android using block programming like scratch!
 
 ## What is OpenBlocks?

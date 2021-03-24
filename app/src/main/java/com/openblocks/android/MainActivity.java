@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -31,10 +30,12 @@ import com.openblocks.android.fragments.main.ModulesFragment;
 import com.openblocks.android.fragments.main.ProjectsFragment;
 import com.openblocks.android.modman.ModuleJsonCorruptedException;
 import com.openblocks.android.modman.ModuleLoader;
+import com.openblocks.android.modman.ModuleLogger;
 import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
-import com.openblocks.android.project.NewProjectDialog;
+import com.openblocks.android.dialog.NewProjectDialog;
 import com.openblocks.moduleinterface.OpenBlocksModule;
+import com.openblocks.moduleinterface.exceptions.ParseException;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksCode;
@@ -52,8 +53,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     final int EDIT_METADATA_REQUEST_CODE = 2;
     final int IMPORT_MODULE_REQUEST_CODE = 1;
 
+    // Used to list, get and read project
     OpenBlocksModule.ProjectManager project_manager;
     OpenBlocksModule.ProjectParser project_parser;
+
+    // Used to initialize / create a new project
+    OpenBlocksModule.BlocksCollection blocks_collection;
+    OpenBlocksModule.ProjectLayoutGUI layout_editor;
 
     // List of existing project ids
     ArrayList<String> project_ids;
@@ -66,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FloatingActionButton fabModules;
 
     private HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules;
+
+    private ModuleLogger logger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,14 +148,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Load Projects ===========================================================================
 
-        Module project_manager_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_MANAGER);
-        Module project_parser_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_PARSER);
+        logger = ModuleLogger.getInstance();
 
-        project_manager = ModuleLoader.load(this, project_manager_module, OpenBlocksModule.ProjectManager.class);
-        project_parser = ModuleLoader.load(this, project_parser_module, OpenBlocksModule.ProjectParser.class);
+        Module project_manager_module   = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_MANAGER);
+        Module project_parser_module    = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_PARSER);
+        Module code_editor_module       = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_CODE_GUI);
+        Module layout_editor_module     = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_LAYOUT_GUI);
 
-        if (project_manager != null) project_manager.initialize(this);
-        if (project_parser != null) project_parser.initialize(this);
+        project_manager     = ModuleLoader.load(this, project_manager_module, OpenBlocksModule.ProjectManager.class);
+        project_parser      = ModuleLoader.load(this, project_parser_module, OpenBlocksModule.ProjectParser.class);
+        blocks_collection   = ModuleLoader.load(this, code_editor_module, OpenBlocksModule.BlocksCollection.class);
+        layout_editor       = ModuleLoader.load(this, layout_editor_module, OpenBlocksModule.ProjectLayoutGUI.class);
+
+        if (project_manager != null) project_manager.initialize(this, logger);
+        if (project_parser != null) project_parser.initialize(this, logger);
+        if (layout_editor != null) layout_editor.initialize(this, logger);
 
         ArrayList<OpenBlocksProjectMetadata> projects_metadata = new ArrayList<>();
 
@@ -158,7 +173,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             for (OpenBlocksRawProject project : projects) {
                 project_ids.add(project.ID);
 
-                projects_metadata.add(project_parser.parseMetadata(project));
+                try {
+                    projects_metadata.add(project_parser.parseMetadata(project));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    logger.err(project_parser.getClass(), "");
+                }
             }
         }
 
@@ -210,15 +230,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // When the user clicked the "New Project" button
     public void fabProjectsClicked(View view) {
         // Show the "New project" dialog
-        NewProjectDialog dialog = new NewProjectDialog(this, /* project_parser.generateFreeId(project_ids) */ "601")
-                /* project_parser is still null, remove hardcoded ID after adding some modules */
-                .addOnMetadataEnteredListener((appName, packageName, versionName, versionCode) -> {
-                    // User has clicked the "OK" button (and the data is valid), project has been saved
-                    // TODO: 3/20/21 assign: Iyxan23; this
-                    Toast.makeText(this, "Imagine yourself that a new project with the app name " + appName
-                            + ", the package name " + packageName + ", the version name " + versionName
-                            + " and the version code " + versionCode + " has been created.", Toast.LENGTH_SHORT).show();
+        NewProjectDialog dialog = new NewProjectDialog(this, project_parser.generateFreeId(project_ids))
+                .addOnMetadataSavedListener((appName, packageName, versionName, versionCode) -> {
+                    // User has clicked the "OK" button (and the data is valid), Create a new project
+                    OpenBlocksProjectMetadata metadata =
+                            new OpenBlocksProjectMetadata(
+                                    appName,
+                                    packageName,
+                                    versionName,
+                                    versionCode
+                            );
+
+                    // TODO: Handle project_parser being null (for some reason)
+                    String new_id = project_parser.generateFreeId(project_ids);
+
+                    // Initialize the project
+                    OpenBlocksCode initialized_code = blocks_collection.initializeNewCode();
+                    OpenBlocksLayout initialized_layout = layout_editor.initializeNewLayout();
+                    OpenBlocksRawProject new_project = project_parser.saveProject(metadata, initialized_code, initialized_layout);
+
+                    new_project.ID = new_id;
+
+                    // Save the project
+                    project_manager.saveProject(new_project);
                 });
+
         dialog.show();
     }
 
@@ -242,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (requestCode == IMPORT_MODULE_REQUEST_CODE) {
             // Get the URI
             Uri uri = data.getData();
-            Module module;
+            ArrayList<Module> module;
 
             // Then import the module
             try {
@@ -257,7 +293,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return;
             }
 
-            Toast.makeText(this, "Module " + module.name + " has successfully imported, restarting activity", Toast.LENGTH_SHORT).show();
+            StringBuilder module_string = new StringBuilder();
+
+            for (Module module1 : module) {
+                module_string.append(module1.name).append(" ");
+            }
+
+            Toast.makeText(this, "Module " + module_string + "has successfully imported, restarting activity", Toast.LENGTH_SHORT).show();
 
             // Ok then refresh our activity
             recreate();
@@ -275,8 +317,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String new_id = project_parser.generateFreeId(project_ids);
 
             // Initialize the project
-            Pair<OpenBlocksCode, OpenBlocksLayout> code_layout = project_parser.initializeEmptyProject();
-            OpenBlocksRawProject new_project = project_parser.saveProject(metadata, code_layout.first, code_layout.second);
+            OpenBlocksCode initialized_code = blocks_collection.initializeNewCode();
+            OpenBlocksLayout initialized_layout = layout_editor.initializeNewLayout();
+            OpenBlocksRawProject new_project = project_parser.saveProject(metadata, initialized_code, initialized_layout);
 
             // Save the project
             project_manager.saveProject(new_project);

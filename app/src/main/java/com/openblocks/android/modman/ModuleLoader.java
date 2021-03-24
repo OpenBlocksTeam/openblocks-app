@@ -12,6 +12,7 @@ import com.openblocks.moduleinterface.OpenBlocksModule;
 public class ModuleLoader {
 
     @SuppressWarnings("unchecked")
+    // TODO: 3/23/21 restore this
     public static <T extends OpenBlocksModule> T load(Context context, Module module, Class<T> type) {
         ModuleManager moduleManager = ModuleManager.getInstance();
 

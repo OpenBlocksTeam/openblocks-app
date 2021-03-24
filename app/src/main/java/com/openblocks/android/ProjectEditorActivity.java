@@ -7,37 +7,34 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.preference.internal.PreferenceImageView;
 import androidx.viewpager.widget.ViewPager;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-import com.openblocks.android.adapters.ProjectRecyclerViewAdapter;
-import com.openblocks.android.fragments.main.ModulesFragment;
-import com.openblocks.android.fragments.main.ProjectsFragment;
+import com.openblocks.android.constants.IncludedBinaries;
 import com.openblocks.android.fragments.projecteditor.CodeEditFragment;
-import com.openblocks.android.fragments.projecteditor.ComponentsEditFragment;
+import com.openblocks.android.fragments.projecteditor.LogFragment;
 import com.openblocks.android.fragments.projecteditor.LayoutEditFragment;
 import com.openblocks.android.modman.ModuleLoader;
+import com.openblocks.android.modman.ModuleLogger;
 import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.moduleinterface.OpenBlocksModule;
 import com.openblocks.moduleinterface.callbacks.SaveCallback;
 import com.openblocks.moduleinterface.exceptions.CompileException;
+import com.openblocks.moduleinterface.exceptions.ParseException;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
+import com.openblocks.moduleinterface.models.compiler.IncludedBinary;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksCode;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksLayout;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 
 public class ProjectEditorActivity extends AppCompatActivity {
 
@@ -46,6 +43,8 @@ public class ProjectEditorActivity extends AppCompatActivity {
     OpenBlocksCode code;
     OpenBlocksLayout layout;
     OpenBlocksProjectMetadata metadata;
+
+    ModuleLogger logger = ModuleLogger.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,16 +63,22 @@ public class ProjectEditorActivity extends AppCompatActivity {
         OpenBlocksModule.ProjectParser project_parser_instance = ModuleLoader.load(this, project_parser, OpenBlocksModule.ProjectParser.class);
 
         // Initialize these modules
-        project_manager_instance.initialize(this);
-        project_parser_instance.initialize(this);
+        project_manager_instance.initialize(this, logger);
+        project_parser_instance.initialize(this, logger);
 
         // Get the project
         OpenBlocksRawProject project = project_manager_instance.getProject(project_id);
 
         // Parse it
-        code = project_parser_instance.parseCode(project);
-        layout = project_parser_instance.parseLayout(project);
-        metadata = project_parser_instance.parseMetadata(project);
+        try {
+            code = project_parser_instance.parseCode(project);
+            layout = project_parser_instance.parseLayout(project);
+            metadata = project_parser_instance.parseMetadata(project);
+        } catch (ParseException e) {
+            Toast.makeText(this, "Error while parsing project: " + e.getMessage(), Toast.LENGTH_LONG).show();
+
+            return;
+        }
 
         // Create some save callbacks
         SaveCallback<OpenBlocksCode> code_save = code_new -> {
@@ -116,6 +121,11 @@ public class ProjectEditorActivity extends AppCompatActivity {
 
         Module compiler_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_COMPILER);
         OpenBlocksModule.ProjectCompiler compiler = ModuleLoader.load(this, compiler_module, OpenBlocksModule.ProjectCompiler.class);
+
+        IncludedBinaries.init(this);
+
+        // Initialize the compiler
+        compiler.initializeCompiler((ArrayList<IncludedBinary>) Arrays.asList(IncludedBinaries.INCLUDED_BINARIES));
 
         FloatingActionButton run_fab = findViewById(R.id.project_editor_run);
 
@@ -189,8 +199,7 @@ public class ProjectEditorActivity extends AppCompatActivity {
                 case 1:
                     return new CodeEditFragment(code, layout, code_save);
                 case 2:
-                    // Components is not planned yet, might be removed
-                    return new ComponentsEditFragment();
+                    return new LogFragment();
                 default:
                     return new Fragment();
             }

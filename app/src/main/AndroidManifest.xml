@@ -11,6 +11,7 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:extractNativeLibs="true"
         android:theme="@style/AppTheme">
         <activity android:name=".SettingsActivity" />
         <activity android:name=".AboutActivity" />

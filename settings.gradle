@@ -1,3 +1,4 @@
-include ':app'
-rootProject.name = "OpenBlocks"
 include ':module-interface'
+include ':app'
+project(':module-interface').projectDir = new File(rootDir, 'openblocks-module-interface/lib/')
+rootProject.name = "OpenBlocks"

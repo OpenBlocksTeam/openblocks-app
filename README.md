@@ -14,6 +14,7 @@
   <a href="https://liberapay.com/OpenBlocks">
     <img src="https://img.shields.io/liberapay/patrons/OpenBlocks" alt="Donate to OpenBlocks"/>
   </a>
+  <img alt="Maintenance" src="https://img.shields.io/maintenance/yes/2021">
 </p>
 
 An open source, modular alternative of sketchware. Create your own app in android using block programming like scratch!

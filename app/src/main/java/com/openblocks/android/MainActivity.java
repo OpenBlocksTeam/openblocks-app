@@ -152,12 +152,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Module project_manager_module   = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_MANAGER);
         Module project_parser_module    = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_PARSER);
-        Module code_editor_module       = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_CODE_GUI);
+        Module blocks_collection_module = moduleManager.getActiveModule(OpenBlocksModule.Type.BLOCKS_COLLECTION);
         Module layout_editor_module     = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_LAYOUT_GUI);
 
         project_manager     = ModuleLoader.load(this, project_manager_module, OpenBlocksModule.ProjectManager.class);
         project_parser      = ModuleLoader.load(this, project_parser_module, OpenBlocksModule.ProjectParser.class);
-        blocks_collection   = ModuleLoader.load(this, code_editor_module, OpenBlocksModule.BlocksCollection.class);
+        blocks_collection   = ModuleLoader.load(this, blocks_collection_module, OpenBlocksModule.BlocksCollection.class);
         layout_editor       = ModuleLoader.load(this, layout_editor_module, OpenBlocksModule.ProjectLayoutGUI.class);
 
         if (project_manager != null) project_manager.initialize(this, logger);

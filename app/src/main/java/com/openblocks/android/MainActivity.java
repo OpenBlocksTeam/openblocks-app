@@ -246,6 +246,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     // Initialize the project
                     OpenBlocksCode initialized_code = blocks_collection.initializeNewCode();
+
+                    // Set the block collection name
+                    initialized_code.block_collection_name =
+                            ModuleManager
+                                    .getInstance()
+                                    .getActiveModule(OpenBlocksModule.Type.BLOCKS_COLLECTION).name;
+
                     OpenBlocksLayout initialized_layout = layout_editor.initializeNewLayout();
                     OpenBlocksRawProject new_project = project_parser.saveProject(metadata, initialized_code, initialized_layout);
 

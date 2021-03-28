@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.openblocks.android.helpers.FileHelper;
 import com.openblocks.android.modman.models.Module;
@@ -466,5 +467,29 @@ public class ModuleManager {
 
         // Then put it back
         FileHelper.writeFile(modules_json, modules_info.toString().getBytes());
+    }
+
+    /**
+     * This function is used to find a module with the specific name
+     * @param type The module type
+     * @param name The module name
+     * @return The module with the specified type and name, will return null if none found
+     */
+    @Nullable
+    public Module findModule(OpenBlocksModule.Type type, String name) {
+        // Check if the modules list has any modules with the type
+        if (!modules.containsKey(type))
+            // None, return null instead
+            return null;
+
+        // Loop over each modules and check if their name is the same
+        for (Module module : modules.get(type)) {
+            if (module.name.equals(name)) {
+                return module;
+            }
+        }
+
+        // If none, return null
+        return null;
     }
 }

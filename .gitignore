@@ -85,4 +85,4 @@ lint/tmp/
 # lint/reports/
 
 # Ignore the binaries
-app/src/main/resources/lib/**/
+app/src/main/jniLibs/**/

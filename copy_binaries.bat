@@ -15,4 +15,4 @@ for %f in (
 	android-build-tools\zipalign\x86
 	android-build-tools\zipalign\x86_64
 
-) do xcopy %f app\src\main\resources\lib
+) do xcopy %f app\src\main\jniLibs

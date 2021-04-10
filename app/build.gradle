@@ -4,6 +4,16 @@ plugins {
 }
 
 android {
+
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi-v7a', 'arm64-v8a', 'x86_64', 'x86'
+            universalApk true
+        }
+    }
+
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 

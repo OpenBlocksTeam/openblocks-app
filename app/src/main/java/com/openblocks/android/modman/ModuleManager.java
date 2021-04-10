@@ -87,9 +87,9 @@ public class ModuleManager {
         ArrayList<File> jar_files = new ArrayList<>();
 
         // Clear everything first
-        modules.clear();
-        active_modules.clear();
-        modules_with_jar.clear();
+        modules = new HashMap<>();
+        active_modules = new HashMap<>();
+        modules_with_jar = new ArrayList<>();
 
         /* The module folder should contain something like this:
          *

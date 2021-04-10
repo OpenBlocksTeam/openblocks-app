@@ -9,22 +9,22 @@ import com.openblocks.android.databinding.ActivityAboutBinding;
 
 public class AboutActivity extends AppCompatActivity {
 
-    private ActivityAboutBinding binding;
-    private Toolbar toolbar;
+    private ActivityAboutBinding _binding;
+    private Toolbar _toolBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityAboutBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        _binding = ActivityAboutBinding.inflate(getLayoutInflater());
+        setContentView(_binding.getRoot());
 
-        toolbar = binding.toolbarAbout;
-        setSupportActionBar(toolbar);
+        _toolBar = _binding.toolbarAbout;
+        setSupportActionBar(_toolBar);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(true);
-            toolbar.setNavigationOnClickListener(v -> onBackPressed());
+            _toolBar.setNavigationOnClickListener(v -> onBackPressed());
         }
     }
 }

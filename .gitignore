@@ -84,5 +84,5 @@ lint/outputs/
 lint/tmp/
 # lint/reports/
 
-# "Un-ignore" binaries (because we need them to build apps)
-!app/src/main/resources/lib/**/
+# Ignore the binaries
+app/src/main/jniLibs/**/

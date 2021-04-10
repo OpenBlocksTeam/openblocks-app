@@ -8,7 +8,7 @@
     <color name="colorControlHighlight">#2ae91e63</color>
     <color name="colorControlNormal">#e91e63</color>
 
-    <color name="colorOnPrimary">#000000</color>
+    <color name="colorOnPrimary">#ffffff</color>
     <color name="colorOnAccent">#ffffff</color>
     <color name="colorOnBackground">#000000</color>
 </resources>

@@ -230,6 +230,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // When the user clicked the "New Project" button
     public void fabProjectsClicked(View view) {
+        // Handle a not implemented Project parser
+        if (project_parser == null) {
+            Toast.makeText(this, "No Project parser module has been loaded yet.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         // Show the "New project" dialog
         NewProjectDialog dialog = new NewProjectDialog(this, project_parser.generateFreeId(project_ids))
                 .addOnMetadataSavedListener((appName, packageName, versionName, versionCode) -> {
@@ -242,7 +247,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     versionCode
                             );
 
-                    // TODO: Handle project_parser being null (for some reason)
                     String new_id = project_parser.generateFreeId(project_ids);
 
                     // Initialize the project

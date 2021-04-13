@@ -44,6 +44,7 @@ import com.openblocks.moduleinterface.projectfiles.OpenBlocksLayout;
 import org.json.JSONException;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -229,6 +230,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // When the user clicked the "New Project" button
     public void fabProjectsClicked(View view) {
+        // Handle a not implemented Project parser
+        if (project_parser == null) {
+            Toast.makeText(this, "No Project parser module has been loaded yet.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         // Show the "New project" dialog
         NewProjectDialog dialog = new NewProjectDialog(this, project_parser.generateFreeId(project_ids))
                 .addOnMetadataSavedListener((appName, packageName, versionName, versionCode) -> {
@@ -241,7 +247,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     versionCode
                             );
 
-                    // TODO: Handle project_parser being null (for some reason)
                     String new_id = project_parser.generateFreeId(project_ids);
 
                     // Initialize the project
@@ -289,7 +294,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             // Then import the module
             try {
-                module = ModuleManager.getInstance().importModule(this, uri.getPath());
+                module = ModuleManager.getInstance().importModule(this,
+                        new FileInputStream(getContentResolver().openFileDescriptor(uri, "r").getFileDescriptor()));
             } catch (IOException e) {
                 Toast.makeText(this, "Error while reading module: " + e.getMessage(), Toast.LENGTH_LONG).show();
 

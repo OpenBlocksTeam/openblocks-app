@@ -369,9 +369,9 @@ public class ModuleManager {
     }
 
     /**
-     * This function imports a module from an InputStream, similar to {@link ModuleManager#importModule(Context, String)}
-     * , Note that this will not add the module to the
-     * modules variable
+     * This function imports a module from an InputStream, similar to
+     * {@link ModuleManager#importModule(Context, String)}.
+     * Note that this will not add the module to the modules variable
      *
      * Note: The imported module will be automatically added to the modules list
      *

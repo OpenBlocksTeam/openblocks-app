@@ -44,6 +44,7 @@ import com.openblocks.moduleinterface.projectfiles.OpenBlocksLayout;
 import org.json.JSONException;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -289,7 +290,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             // Then import the module
             try {
-                module = ModuleManager.getInstance().importModule(this, uri.getPath());
+                module = ModuleManager.getInstance().importModule(this,
+                        new FileInputStream(getContentResolver().openFileDescriptor(uri, "r").getFileDescriptor()));
             } catch (IOException e) {
                 Toast.makeText(this, "Error while reading module: " + e.getMessage(), Toast.LENGTH_LONG).show();
 

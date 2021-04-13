@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -278,7 +279,7 @@ public class ModuleManager {
      */
     public ArrayList<Module> importModule(Context context, String path) throws IOException, JSONException {
         ArrayList<Module> modules_inside_jar = new ArrayList<>();
-        OpenBlocksModule.Type module_type = null;
+        OpenBlocksModule.Type module_type;
         File modules_dir = new File(context.getFilesDir(), "modules");
         File jar_file = null;
 
@@ -361,6 +362,110 @@ public class ModuleManager {
         // Check if there isn't any jar file
         if (jar_file == null) {
             throw new IOException("Jar file doesn't exists");
+        }
+
+        // Ight we can return the module
+        return modules_inside_jar;
+    }
+
+    /**
+     * This function imports a module from an InputStream, similar to {@link ModuleManager#importModule(Context, String)}
+     * , Note that this will not add the module to the
+     * modules variable
+     *
+     * Note: The imported module will be automatically added to the modules list
+     *
+     * @param context The context
+     * @param inputStream The path where the module is located
+     * @return The imported module
+     * @throws IOException When an IO error occurs
+     * @throws JSONException When the module is corrupted / malformed
+     */
+    public ArrayList<Module> importModule(Context context, FileInputStream inputStream) throws IOException, JSONException {
+        ArrayList<Module> modules_inside_jar = new ArrayList<>();
+        OpenBlocksModule.Type module_type;
+        File modules_dir = new File(context.getFilesDir(), "modules");
+        File jar_file = null;
+
+        FileInputStream fis;
+
+        // Buffer for read and write data to file
+        byte[] buffer = new byte[1024];
+
+        fis = inputStream;
+
+        ZipInputStream zis = new ZipInputStream(fis);
+        ZipEntry ze = zis.getNextEntry();
+
+        while (ze != null) {
+            String fileName = ze.getName();
+
+            if (fileName.matches("^\\w+\\.jar$")) {
+                jar_file = new File(modules_dir, ze.getName());
+                FileOutputStream fos = new FileOutputStream(jar_file);
+
+                int len;
+                while ((len = zis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len);
+                }
+
+                fos.close();
+            } else if (fileName.equals("openblocks-module-manifest.json")) {
+                // Source: https://stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
+                String file_data;
+                ByteArrayOutputStream result = new ByteArrayOutputStream();
+
+                int length;
+                while ((length = zis.read(buffer)) != -1) {
+                    result.write(buffer, 0, length);
+                }
+
+                file_data = result.toString("UTF-8");
+
+                // Read the manifest
+                JSONObject manifest = new JSONObject(file_data);
+
+                Module module = new Module();
+                module.name = manifest.getString("name");
+                module.description = manifest.getString("description");
+                module.classpath = manifest.getString("classpath");
+                module.version = manifest.getInt("version");
+                module.lib_version = manifest.getInt("lib_version");
+
+                // Set the jar metadata
+                module.jar_file = jar_file;
+                module.filename = jar_file.getName();
+
+                // Add it to this arraylist
+                modules_inside_jar.add(module);
+
+                module_type = OpenBlocksModule.Type.valueOf(manifest.getString("type"));
+
+                // Check if this module_type hasn't been initialized
+                if (!modules.containsKey(module_type)) {
+                    modules.put(module_type, new ArrayList<>());
+                }
+
+                // alright, let's put it on our modules list
+                modules .get(module_type)
+                        .add(module);
+            }
+
+            // Close this ZipEntry
+            zis.closeEntry();
+
+            // Ight, next!
+            ze = zis.getNextEntry();
+        }
+
+        // No need to close the last ZipEntry, it's been closed already
+        // Let's just close the ZIP file instead.
+        zis.close();
+        fis.close();
+
+        // Check if there isn't any jar file
+        if (jar_file == null) {
+            throw new IOException("JAR file doesn't exist!");
         }
 
         // Ight we can return the module

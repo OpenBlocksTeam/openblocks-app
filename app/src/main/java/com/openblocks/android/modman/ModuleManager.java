@@ -294,29 +294,30 @@ public class ModuleManager {
      */
     public ArrayList<Module> importModule(Context context, FileInputStream inputStream) throws IOException, JSONException {
         ArrayList<Module> modules_inside_jar = new ArrayList<>();
-        OpenBlocksModule.Type module_type;
         File modules_dir = new File(context.getFilesDir(), "modules");
         File jar_file = null;
 
-        FileInputStream fis;
+        JSONObject manifest = null;
+
+        FileInputStream zip_fileInputStream;
 
         // Buffer for read and write data to file
         byte[] buffer = new byte[1024];
 
-        fis = inputStream;
+        zip_fileInputStream = inputStream;
 
-        ZipInputStream zis = new ZipInputStream(fis);
-        ZipEntry ze = zis.getNextEntry();
+        ZipInputStream zipInputStream = new ZipInputStream(zip_fileInputStream);
+        ZipEntry zipEntry = zipInputStream.getNextEntry();
 
-        while (ze != null) {
-            String fileName = ze.getName();
+        while (zipEntry != null) {
+            String fileName = zipEntry.getName();
 
             if (fileName.matches("^\\w+\\.jar$")) {
-                jar_file = new File(modules_dir, ze.getName());
+                jar_file = new File(modules_dir, zipEntry.getName());
                 FileOutputStream fos = new FileOutputStream(jar_file);
 
                 int len;
-                while ((len = zis.read(buffer)) > 0) {
+                while ((len = zipInputStream.read(buffer)) > 0) {
                     fos.write(buffer, 0, len);
                 }
 
@@ -327,60 +328,95 @@ public class ModuleManager {
                 ByteArrayOutputStream result = new ByteArrayOutputStream();
 
                 int length;
-                while ((length = zis.read(buffer)) != -1) {
+                while ((length = zipInputStream.read(buffer)) != -1) {
                     result.write(buffer, 0, length);
                 }
 
                 file_data = result.toString("UTF-8");
 
                 // Read the manifest
-                JSONObject manifest = new JSONObject(file_data);
-
-                Module module = new Module();
-                module.name = manifest.getString("name");
-                module.description = manifest.getString("description");
-                module.classpath = manifest.getString("classpath");
-                module.version = manifest.getInt("version");
-                module.lib_version = manifest.getInt("lib_version");
-
-                // Set the jar metadata
-                module.jar_file = jar_file;
-                module.filename = jar_file.getName();
-
-                // Add it to this arraylist
-                modules_inside_jar.add(module);
-
-                module_type = OpenBlocksModule.Type.valueOf(manifest.getString("type"));
-
-                // Check if this module_type hasn't been initialized
-                if (!modules.containsKey(module_type)) {
-                    modules.put(module_type, new ArrayList<>());
-                }
-
-                // alright, let's put it on our modules list
-                modules .get(module_type)
-                        .add(module);
+                manifest = new JSONObject(file_data);
             }
 
             // Close this ZipEntry
-            zis.closeEntry();
+            zipInputStream.closeEntry();
 
             // Ight, next!
-            ze = zis.getNextEntry();
+            zipEntry = zipInputStream.getNextEntry();
         }
 
         // No need to close the last ZipEntry, it's been closed already
         // Let's just close the ZIP file instead.
-        zis.close();
-        fis.close();
+        zipInputStream.close();
+        zip_fileInputStream.close();
 
         // Check if there isn't any jar file
         if (jar_file == null) {
             throw new IOException("JAR file doesn't exist!");
         }
 
+        if (manifest == null) {
+            throw new IOException("Manifest file doesn't exists");
+        }
+
+        // Because the jar file isn't null, let's parse the manifest
+
+        // Parse the manifest
+        ArrayList<Module> modules_inside_manifest = parseManifest(jar_file, manifest);
+
+        // Add it to this arraylist
+        modules_inside_jar.addAll(modules_inside_manifest);
+
+        // Loop for each modules
+        for (Module module : modules_inside_manifest) {
+            // Then add them to the modules collection
+            OpenBlocksModule.Type module_type = module.module_type;
+
+            // Check if this module_type hasn't been initialized
+            if (!modules.containsKey(module_type)) {
+                modules.put(module_type, new ArrayList<>());
+            }
+
+            // alright, let's put it on our modules list
+            modules .get(module_type)
+                    .add(module);
+        }
+
         // Ight we can return the module
         return modules_inside_jar;
+    }
+
+    /**
+     * This private function parses a manifest and returns a list of modules that it defines
+     *
+     * @param jar_file The jar file the manifest came with
+     * @param manifest The manifest itself
+     * @return A list of modules defined in the manifest
+     * @throws JSONException If this manifest is corrupted
+     */
+    private ArrayList<Module> parseManifest(File jar_file, JSONObject manifest) throws JSONException {
+        ArrayList<Module> result = new ArrayList<>();
+        JSONArray modules = manifest.getJSONArray("modules");
+
+        for (int i = 0; i < modules.length(); i++) {
+            JSONObject current_module = modules.getJSONObject(i);
+
+            Module module = new Module();
+            module.name = current_module.getString("name");
+            module.description = current_module.getString("description");
+            module.classpath = current_module.getString("classpath");
+            module.version = current_module.getInt("version");
+            module.lib_version = current_module.getInt("lib_version");
+            module.module_type = OpenBlocksModule.Type.valueOf(current_module.getString("type"));
+
+            // Set the jar metadata
+            module.jar_file = jar_file;
+            module.filename = jar_file.getName();
+
+            result.add(module);
+        }
+
+        return result;
     }
 
     /**

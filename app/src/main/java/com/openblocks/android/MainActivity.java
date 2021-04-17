@@ -110,21 +110,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Check if this is the first time the user has opened this app
         if (sp.getBoolean("first_time", true)) {
+
             // Oo, first time huh, let's initialize the modules folder, and extract our default modules there
-            sp.edit().putBoolean("first_time", false).apply();
             try {
                 // Initialize the modules folder
                 File modules_folder = new File(getFilesDir(), "/modules/");
-                modules_folder.mkdir();
 
-                Log.d(TAG, "onCreate: init modules.json");
+                if (!modules_folder.mkdir()) {
+                    Log.w(TAG, "onCreate: modules folder already exists on init, continuing anyway");
+                }
 
                 // Initialize the modules.json file
                 File modulesjson = new File(modules_folder, "modules.json");
-                modulesjson.createNewFile();
+
+                if (!modulesjson.createNewFile()) {
+                    Log.w(TAG, "onCreate: modules.json already exists on first time, continuing anyway");
+                }
+
                 FileHelper.writeFile(modulesjson, "{}".getBytes());
 
                 // TODO: EXTRACT / DOWNLOAD DEFAULT MODULES
+
+                sp.edit().putBoolean("first_time", false).apply();
             } catch (IOException e) {
                 Toast.makeText(this, "Error while initializing modules: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 e.printStackTrace();

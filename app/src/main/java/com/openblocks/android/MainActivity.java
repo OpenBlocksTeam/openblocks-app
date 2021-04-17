@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -28,6 +29,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.openblocks.android.databinding.ActivityMainBinding;
 import com.openblocks.android.fragments.main.ModulesFragment;
 import com.openblocks.android.fragments.main.ProjectsFragment;
+import com.openblocks.android.helpers.FileHelper;
 import com.openblocks.android.modman.ModuleJsonCorruptedException;
 import com.openblocks.android.modman.ModuleLoader;
 import com.openblocks.android.modman.ModuleLogger;
@@ -50,6 +52,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    private static final String TAG = "MainActivity";
 
     final int EDIT_METADATA_REQUEST_CODE = 2;
     final int IMPORT_MODULE_REQUEST_CODE = 1;
@@ -105,23 +109,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SharedPreferences sp = getSharedPreferences("data", MODE_PRIVATE);
 
         // Check if this is the first time the user has opened this app
-        if (sp.getBoolean("first_time", false)) {
+        if (sp.getBoolean("first_time", true)) {
             // Oo, first time huh, let's initialize the modules folder, and extract our default modules there
+            sp.edit().putBoolean("first_time", false).apply();
             try {
                 // Initialize the modules folder
                 File modules_folder = new File(getFilesDir(), "/modules/");
-                if (!modules_folder.mkdir()) {
-                    throw new IOException("An unknown error occurred whilst trying to initialize the modules folder");
-                }
+                modules_folder.mkdir();
+
+                Log.d(TAG, "onCreate: init modules.json");
 
                 // Initialize the modules.json file
-                if (!new File(modules_folder, "modules.json").createNewFile()) {
-                    throw new IOException("An unknown error occurred whilst trying to initialize modules.json");
-                }
+                File modulesjson = new File(modules_folder, "modules.json");
+                modulesjson.createNewFile();
+                FileHelper.writeFile(modulesjson, "{}".getBytes());
 
                 // TODO: EXTRACT / DOWNLOAD DEFAULT MODULES
             } catch (IOException e) {
                 Toast.makeText(this, "Error while initializing modules: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                e.printStackTrace();
                 finish();
             }
         }

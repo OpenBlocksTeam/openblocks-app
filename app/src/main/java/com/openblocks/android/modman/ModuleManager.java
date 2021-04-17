@@ -382,6 +382,8 @@ public class ModuleManager {
                     .add(module);
         }
 
+        saveModules(context);
+
         // Ight we can return the module
         return modules_inside_jar;
     }
@@ -494,6 +496,11 @@ public class ModuleManager {
         // Then parse it
         File modules_json = new File(modules_directory, "modules.json");
         JSONObject modules_info = new JSONObject(FileHelper.readFile(modules_json));
+
+        // Check if modules key is set, if not, set it
+        if (!modules_info.has("modules")) {
+            modules_info.put("modules", new JSONObject());
+        }
 
         // Loop per each modules
         for (Pair<File, ArrayList<Module>> jar_modules_pair : modules_with_jar) {

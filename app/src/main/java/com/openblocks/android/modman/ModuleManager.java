@@ -382,6 +382,10 @@ public class ModuleManager {
                     .add(module);
         }
 
+        // Save it to the global modules_with_jar variable
+        modules_with_jar.add(new Pair<>(jar_file, modules_inside_jar));
+
+        // Then save the module to modules.json
         saveModules(context);
 
         // Ight we can return the module

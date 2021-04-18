@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Log.w(TAG, "onCreate: modules.json already exists on first time, continuing anyway");
                 }
 
-                FileHelper.writeFile(modulesjson, "{}".getBytes());
+                FileHelper.writeFile(modulesjson, "{\"modules\":{}, \"active_modules\":{}}".getBytes());
 
                 // TODO: EXTRACT / DOWNLOAD DEFAULT MODULES
 

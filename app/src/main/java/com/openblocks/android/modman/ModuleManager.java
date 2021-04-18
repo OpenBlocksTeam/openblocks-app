@@ -168,8 +168,8 @@ public class ModuleManager {
                 try {
                     JSONObject modules_json = new JSONObject(FileHelper.readFile(module));
 
-                    active_modules_json = modules_json.getJSONObject("active_modules");
                     modules_information = modules_json.getJSONObject("modules");
+                    active_modules_json = modules_json.getJSONObject("active_modules");
                 } catch (JSONException e) {
                     throw new ModuleJsonCorruptedException(e.getMessage());
                 }

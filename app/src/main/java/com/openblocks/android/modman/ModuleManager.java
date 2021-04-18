@@ -1,6 +1,7 @@
 package com.openblocks.android.modman;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
@@ -190,26 +191,14 @@ public class ModuleManager {
             try {
                 String filename = jar_file.getName();
 
-                // Get the module info from the modules.json by it's name
-                JSONObject current_module_jar_info = modules_information.getJSONObject(filename);
-
-                // Get the module type
-                OpenBlocksModule.Type module_type = OpenBlocksModule.Type.valueOf(current_module_jar_info.getString("type"));
-
-                // Check if the arraylist is already initialized
-                if (!modules.containsKey(module_type)) {
-                    // Oop, it haven't, let's initialize it
-                    modules.put(module_type, new ArrayList<>());
-                }
-
                 // Because there might be multiple modules inside the jar, we should loop
-                // for each jsonobject in the "modules" array
-
-                JSONArray modules_inside_jar = current_module_jar_info.getJSONArray("modules");
+                JSONArray modules_inside_jar = modules_information.getJSONArray(filename);
                 ArrayList<Module> modules_inside_jar_list = new ArrayList<>();
 
                 for (int i = 0; i < modules_inside_jar.length(); i++) {
                     JSONObject current_module_info = modules_inside_jar.getJSONObject(i);
+
+                    OpenBlocksModule.Type module_type = OpenBlocksModule.Type.valueOf(current_module_info.getString("type"));
 
                     Module module = new Module(
                             filename,
@@ -238,7 +227,9 @@ public class ModuleManager {
 
                 modules_with_jar.add(new Pair<>(jar_file, modules_inside_jar_list));
 
-            } catch (JSONException ignored) { } // We're gonna ignore the error, and go on
+            } catch (JSONException ignored) {
+                ignored.printStackTrace();
+            } // We're gonna ignore the error, and go on (because the jar we're parsing isn't defied in modules.json)
         }
     }
 

@@ -13,6 +13,7 @@
         android:supportsRtl="true"
         android:extractNativeLibs="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ModuleConfigActivity" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".AboutActivity" />
         <activity android:name=".ProjectEditorActivity" />

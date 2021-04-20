@@ -1,6 +1,7 @@
 package com.openblocks.android.modman;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
@@ -168,8 +169,8 @@ public class ModuleManager {
                 try {
                     JSONObject modules_json = new JSONObject(FileHelper.readFile(module));
 
-                    active_modules_json = modules_json.getJSONObject("active_modules");
                     modules_information = modules_json.getJSONObject("modules");
+                    active_modules_json = modules_json.getJSONObject("active_modules");
                 } catch (JSONException e) {
                     throw new ModuleJsonCorruptedException(e.getMessage());
                 }
@@ -190,26 +191,14 @@ public class ModuleManager {
             try {
                 String filename = jar_file.getName();
 
-                // Get the module info from the modules.json by it's name
-                JSONObject current_module_jar_info = modules_information.getJSONObject(filename);
-
-                // Get the module type
-                OpenBlocksModule.Type module_type = OpenBlocksModule.Type.valueOf(current_module_jar_info.getString("type"));
-
-                // Check if the arraylist is already initialized
-                if (!modules.containsKey(module_type)) {
-                    // Oop, it haven't, let's initialize it
-                    modules.put(module_type, new ArrayList<>());
-                }
-
                 // Because there might be multiple modules inside the jar, we should loop
-                // for each jsonobject in the "modules" array
-
-                JSONArray modules_inside_jar = current_module_jar_info.getJSONArray("modules");
+                JSONArray modules_inside_jar = modules_information.getJSONArray(filename);
                 ArrayList<Module> modules_inside_jar_list = new ArrayList<>();
 
                 for (int i = 0; i < modules_inside_jar.length(); i++) {
                     JSONObject current_module_info = modules_inside_jar.getJSONObject(i);
+
+                    OpenBlocksModule.Type module_type = OpenBlocksModule.Type.valueOf(current_module_info.getString("type"));
 
                     Module module = new Module(
                             filename,
@@ -225,6 +214,12 @@ public class ModuleManager {
                     modules_inside_jar_list.add(module);
 
                     // ohk, add the module
+                    // Check if the current module type is empty / uninitialized
+                    if (modules.get(module_type) == null) {
+                        modules.put(module_type, new ArrayList<>());
+                    }
+
+                    // Then add the module
                     Objects.requireNonNull(
                             modules.get(module_type)
                     ).add(module);
@@ -238,7 +233,9 @@ public class ModuleManager {
 
                 modules_with_jar.add(new Pair<>(jar_file, modules_inside_jar_list));
 
-            } catch (JSONException ignored) { } // We're gonna ignore the error, and go on
+            } catch (JSONException ignored) {
+                ignored.printStackTrace();
+            } // We're gonna ignore the error, and go on (because the jar we're parsing isn't defied in modules.json)
         }
     }
 
@@ -266,8 +263,7 @@ public class ModuleManager {
     }
 
     /**
-     * This function imports a module from a path, Note that this will not add the module to the
-     * modules variable
+     * This function imports a module from a path, a wrapper of {@link #importModule(Context, FileInputStream)}
      *
      * Note: The imported module will be automatically added to the modules list
      *
@@ -278,100 +274,12 @@ public class ModuleManager {
      * @throws JSONException When the module is corrupted / malformed
      */
     public ArrayList<Module> importModule(Context context, String path) throws IOException, JSONException {
-        ArrayList<Module> modules_inside_jar = new ArrayList<>();
-        OpenBlocksModule.Type module_type;
-        File modules_dir = new File(context.getFilesDir(), "modules");
-        File jar_file = null;
-
-        FileInputStream fis;
-
-        // Buffer for read and write data to file
-        byte[] buffer = new byte[1024];
-
-        fis = new FileInputStream(path);
-
-        ZipInputStream zis = new ZipInputStream(fis);
-        ZipEntry ze = zis.getNextEntry();
-
-        while (ze != null) {
-            String fileName = ze.getName();
-
-            if (fileName.matches("^\\w+\\.jar$")) {
-                jar_file = new File(modules_dir, ze.getName());
-                FileOutputStream fos = new FileOutputStream(jar_file);
-
-                int len;
-                while ((len = zis.read(buffer)) > 0) {
-                    fos.write(buffer, 0, len);
-                }
-
-                fos.close();
-            } else if (fileName.equals("openblocks-module-manifest.json")) {
-                // Source: https://stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
-                String file_data;
-                ByteArrayOutputStream result = new ByteArrayOutputStream();
-
-                int length;
-                while ((length = zis.read(buffer)) != -1) {
-                    result.write(buffer, 0, length);
-                }
-
-                file_data = result.toString("UTF-8");
-
-                // Read the manifest
-                JSONObject manifest = new JSONObject(file_data);
-
-                Module module = new Module();
-                module.name = manifest.getString("name");
-                module.description = manifest.getString("description");
-                module.classpath = manifest.getString("classpath");
-                module.version = manifest.getInt("version");
-                module.lib_version = manifest.getInt("lib_version");
-
-                // Set the jar metadata
-                module.jar_file = jar_file;
-                module.filename = jar_file.getName();
-
-                // Add it to this arraylist
-                modules_inside_jar.add(module);
-
-                module_type = OpenBlocksModule.Type.valueOf(manifest.getString("type"));
-
-                // Check if this module_type hasn't been initialized
-                if (!modules.containsKey(module_type)) {
-                    modules.put(module_type, new ArrayList<>());
-                }
-
-                // alright, let's put it on our modules list
-                modules .get(module_type)
-                        .add(module);
-            }
-
-            // Close this ZipEntry
-            zis.closeEntry();
-
-            // Ight, next!
-            ze = zis.getNextEntry();
-        }
-
-        // Close last ZipEntry
-        zis.closeEntry();
-        zis.close();
-        fis.close();
-
-        // Check if there isn't any jar file
-        if (jar_file == null) {
-            throw new IOException("Jar file doesn't exists");
-        }
-
-        // Ight we can return the module
-        return modules_inside_jar;
+        FileInputStream fis = new FileInputStream(path);
+        return importModule(context, fis);
     }
 
     /**
-     * This function imports a module from an InputStream, similar to
-     * {@link ModuleManager#importModule(Context, String)}.
-     * Note that this will not add the module to the modules variable
+     * This function imports a module from an InputStream
      *
      * Note: The imported module will be automatically added to the modules list
      *
@@ -383,29 +291,30 @@ public class ModuleManager {
      */
     public ArrayList<Module> importModule(Context context, FileInputStream inputStream) throws IOException, JSONException {
         ArrayList<Module> modules_inside_jar = new ArrayList<>();
-        OpenBlocksModule.Type module_type;
         File modules_dir = new File(context.getFilesDir(), "modules");
         File jar_file = null;
 
-        FileInputStream fis;
+        JSONObject manifest = null;
+
+        FileInputStream zip_fileInputStream;
 
         // Buffer for read and write data to file
         byte[] buffer = new byte[1024];
 
-        fis = inputStream;
+        zip_fileInputStream = inputStream;
 
-        ZipInputStream zis = new ZipInputStream(fis);
-        ZipEntry ze = zis.getNextEntry();
+        ZipInputStream zipInputStream = new ZipInputStream(zip_fileInputStream);
+        ZipEntry zipEntry = zipInputStream.getNextEntry();
 
-        while (ze != null) {
-            String fileName = ze.getName();
+        while (zipEntry != null) {
+            String fileName = zipEntry.getName();
 
             if (fileName.matches("^\\w+\\.jar$")) {
-                jar_file = new File(modules_dir, ze.getName());
+                jar_file = new File(modules_dir, zipEntry.getName());
                 FileOutputStream fos = new FileOutputStream(jar_file);
 
                 int len;
-                while ((len = zis.read(buffer)) > 0) {
+                while ((len = zipInputStream.read(buffer)) > 0) {
                     fos.write(buffer, 0, len);
                 }
 
@@ -416,60 +325,101 @@ public class ModuleManager {
                 ByteArrayOutputStream result = new ByteArrayOutputStream();
 
                 int length;
-                while ((length = zis.read(buffer)) != -1) {
+                while ((length = zipInputStream.read(buffer)) != -1) {
                     result.write(buffer, 0, length);
                 }
 
                 file_data = result.toString("UTF-8");
 
                 // Read the manifest
-                JSONObject manifest = new JSONObject(file_data);
-
-                Module module = new Module();
-                module.name = manifest.getString("name");
-                module.description = manifest.getString("description");
-                module.classpath = manifest.getString("classpath");
-                module.version = manifest.getInt("version");
-                module.lib_version = manifest.getInt("lib_version");
-
-                // Set the jar metadata
-                module.jar_file = jar_file;
-                module.filename = jar_file.getName();
-
-                // Add it to this arraylist
-                modules_inside_jar.add(module);
-
-                module_type = OpenBlocksModule.Type.valueOf(manifest.getString("type"));
-
-                // Check if this module_type hasn't been initialized
-                if (!modules.containsKey(module_type)) {
-                    modules.put(module_type, new ArrayList<>());
-                }
-
-                // alright, let's put it on our modules list
-                modules .get(module_type)
-                        .add(module);
+                manifest = new JSONObject(file_data);
             }
 
             // Close this ZipEntry
-            zis.closeEntry();
+            zipInputStream.closeEntry();
 
             // Ight, next!
-            ze = zis.getNextEntry();
+            zipEntry = zipInputStream.getNextEntry();
         }
 
         // No need to close the last ZipEntry, it's been closed already
         // Let's just close the ZIP file instead.
-        zis.close();
-        fis.close();
+        zipInputStream.close();
+        zip_fileInputStream.close();
 
         // Check if there isn't any jar file
         if (jar_file == null) {
             throw new IOException("JAR file doesn't exist!");
         }
 
+        if (manifest == null) {
+            throw new IOException("Manifest file doesn't exists");
+        }
+
+        // Because the jar file isn't null, let's parse the manifest
+
+        // Parse the manifest
+        ArrayList<Module> modules_inside_manifest = parseManifest(jar_file, manifest);
+
+        // Add it to this arraylist
+        modules_inside_jar.addAll(modules_inside_manifest);
+
+        // Loop for each modules
+        for (Module module : modules_inside_manifest) {
+            // Then add them to the modules collection
+            OpenBlocksModule.Type module_type = module.module_type;
+
+            // Check if this module_type hasn't been initialized
+            if (!modules.containsKey(module_type)) {
+                modules.put(module_type, new ArrayList<>());
+            }
+
+            // alright, let's put it on our modules list
+            modules .get(module_type)
+                    .add(module);
+        }
+
+        // Save it to the global modules_with_jar variable
+        modules_with_jar.add(new Pair<>(jar_file, modules_inside_jar));
+
+        // Then save the module to modules.json
+        saveModules(context);
+
         // Ight we can return the module
         return modules_inside_jar;
+    }
+
+    /**
+     * This private function parses a manifest and returns a list of modules that it defines
+     *
+     * @param jar_file The jar file the manifest came with
+     * @param manifest The manifest itself
+     * @return A list of modules defined in the manifest
+     * @throws JSONException If this manifest is corrupted
+     */
+    private ArrayList<Module> parseManifest(File jar_file, JSONObject manifest) throws JSONException {
+        ArrayList<Module> result = new ArrayList<>();
+        JSONArray modules = manifest.getJSONArray("modules");
+
+        for (int i = 0; i < modules.length(); i++) {
+            JSONObject current_module = modules.getJSONObject(i);
+
+            Module module = new Module();
+            module.name = current_module.getString("name");
+            module.description = current_module.getString("description");
+            module.classpath = current_module.getString("classpath");
+            module.version = current_module.getInt("version");
+            module.lib_version = current_module.getInt("lib_version");
+            module.module_type = OpenBlocksModule.Type.valueOf(current_module.getString("type"));
+
+            // Set the jar metadata
+            module.jar_file = jar_file;
+            module.filename = jar_file.getName();
+
+            result.add(module);
+        }
+
+        return result;
     }
 
     /**
@@ -547,6 +497,11 @@ public class ModuleManager {
         // Then parse it
         File modules_json = new File(modules_directory, "modules.json");
         JSONObject modules_info = new JSONObject(FileHelper.readFile(modules_json));
+
+        // Check if modules key is set, if not, set it
+        if (!modules_info.has("modules")) {
+            modules_info.put("modules", new JSONObject());
+        }
 
         // Loop per each modules
         for (Pair<File, ArrayList<Module>> jar_modules_pair : modules_with_jar) {

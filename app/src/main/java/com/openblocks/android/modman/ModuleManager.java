@@ -214,6 +214,12 @@ public class ModuleManager {
                     modules_inside_jar_list.add(module);
 
                     // ohk, add the module
+                    // Check if the current module type is empty / uninitialized
+                    if (modules.get(module_type) == null) {
+                        modules.put(module_type, new ArrayList<>());
+                    }
+
+                    // Then add the module
                     Objects.requireNonNull(
                             modules.get(module_type)
                     ).add(module);

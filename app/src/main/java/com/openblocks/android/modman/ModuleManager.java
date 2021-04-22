@@ -69,6 +69,7 @@ public class ModuleManager {
         return result;
     }
 
+    @Nullable
     public Module getActiveModule(OpenBlocksModule.Type type) {
         return active_modules.get(type);
     }
@@ -199,10 +200,11 @@ public class ModuleManager {
                     JSONObject current_module_info = modules_inside_jar.getJSONObject(i);
 
                     OpenBlocksModule.Type module_type = OpenBlocksModule.Type.valueOf(current_module_info.getString("type"));
+                    String module_name = current_module_info.getString("name");
 
                     Module module = new Module(
                             filename,
-                            current_module_info.getString("name"),
+                            module_name,
                             current_module_info.getString("description"),
                             current_module_info.getString("classpath"),
                             current_module_info.getInt("version"),
@@ -224,8 +226,12 @@ public class ModuleManager {
                             modules.get(module_type)
                     ).add(module);
 
-                    // Check if this module exists in the active modules list
-                    if (active_modules_json.getString(module_type.toString()).equals(filename)) {
+                    // Check if this module is defined in the active modules child
+                    JSONObject current_module_type_active_module = active_modules_json.getJSONObject(module_type.toString());
+
+                    // Check both the jar and the name
+                    if (current_module_type_active_module.getString("jar").equals(jar_file.getName()) &&
+                        current_module_type_active_module.getString("name").equals(module_name)) {
                         // Alright, this module is active, add it to this active_modules hashmap
                         active_modules.put(module_type, module);
                     }
@@ -469,11 +475,17 @@ public class ModuleManager {
 
         // Loop per each type
         for (OpenBlocksModule.Type type: active_modules.keySet()) {
-            if (active_modules.get(type) == null)
+            Module current_module = active_modules.get(type);
+
+            if (current_module == null)
                 continue;
 
-            // Update the module name
-            modules_info.getJSONObject("active_modules").put(type.toString(), active_modules.get(type).filename);
+            JSONObject active_module_json = new JSONObject();
+            active_module_json.put("jar", current_module.jar_file);
+            active_module_json.put("name", current_module.name);
+
+            // Update the module
+            modules_info.getJSONObject("active_modules").put(type.toString(), active_module_json);
         }
 
         // Then put it back

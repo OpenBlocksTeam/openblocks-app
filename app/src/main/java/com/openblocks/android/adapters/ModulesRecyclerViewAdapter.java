@@ -29,7 +29,7 @@ import java.util.HashMap;
 public class ModulesRecyclerViewAdapter extends RecyclerView.Adapter<ModulesRecyclerViewAdapter.ViewHolder> {
     private static final String TAG = "ModuleRVAdapter";
     WeakReference<Activity> activity;
-    // TODO: REPLACE THIS WITH JUST MODULE MANAGER
+
     private HashMap<OpenBlocksModule.Type, ArrayList<Module>> data = new HashMap<>();
     private ArrayList<Module> modules;
     private ModuleManager moduleManager;
@@ -71,7 +71,7 @@ public class ModulesRecyclerViewAdapter extends RecyclerView.Adapter<ModulesRecy
         holder.description.setText(item.description);
 
         // Check if this module is active
-        if (item.equals(moduleManager.getActiveModule(item.module_type))) {
+        if (!item.equals(moduleManager.getActiveModule(item.module_type))) {
             // Nop it's inactive, red text with NOT ACTIVE text
             holder.active_status.setText("NOT ACTIVE");
             holder.active_status.setTextColor(0xFFE61212);

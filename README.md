@@ -8,7 +8,7 @@
   <a href="https://github.com/OpenBlocksTeam/openblocks-app/actions/workflows/gradle.yml">
     <img src="https://github.com/OpenBlocksTeam/openblocks-app/actions/workflows/gradle.yml/badge.svg" alt="Java CI with Gradle"/>
   </a>
-  <a href="https://openblocks.tk/invite">
+  <a href="https://openblocks.tk/discord">
     <img src="https://img.shields.io/discord/812214674669830154" alt="Discord server">
   </a>
   <a href="https://liberapay.com/OpenBlocks">

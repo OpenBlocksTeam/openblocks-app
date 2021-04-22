@@ -26,6 +26,7 @@
     "PROJECT_PARSER": {"jar": "simple_parser.jar", "name": "SimpleParser"},
     "PROJECT_GUI_CODE": null,
     "PROJECT_GUI_LAYOUT": null,
+    "PROJECT_COMPILER": null,
     "BLOCKS_COLLECTION": null
   }
 }

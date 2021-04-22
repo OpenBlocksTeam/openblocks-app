@@ -17,6 +17,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.openblocks.android.ModuleConfigActivity;
+import com.openblocks.android.ModuleInfoActivity;
 import com.openblocks.android.R;
 import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
@@ -100,7 +101,7 @@ public class ModulesRecyclerViewAdapter extends RecyclerView.Adapter<ModulesRecy
         }
 
         holder.body.setOnClickListener(v -> {
-            Intent open_config = new Intent(activity.get(), ModuleConfigActivity.class);
+            Intent open_config = new Intent(activity.get(), ModuleInfoActivity.class);
             open_config.putExtra("module", item);
             activity.get().startActivity(open_config);
         });

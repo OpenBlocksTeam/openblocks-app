@@ -7,7 +7,6 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.FileUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,9 +49,7 @@ import org.json.JSONException;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -125,22 +122,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Log.w(TAG, "onCreate: modules folder already exists on init, continuing anyway");
                 }
 
-                // Initialize the modules.json file
-                File modulesjson = new File(modules_folder, "modules.json");
+                // FIXME: 4/22/21 Somehow use the variable modules_json within the extraction
 
-                if (!modulesjson.createNewFile()) {
+                // Initialize the modules.json file
+                File modules_json = new File(modules_folder, "modules.json");
+
+                if (!modules_json.createNewFile()) {
                     Log.w(TAG, "onCreate: modules.json already exists on first time, continuing anyway");
                 }
 
                 Resources resources = getResources();
 
-                FileHelper.writeFile(modulesjson, "{\"modules\":{}, \"active_modules\":{}}".getBytes());
+                // Extract the initial modules.json
+                FileHelper.extractRawResource(resources, R.raw.initial_modules_json, modules_folder, "modules.json");
 
+                // Then extract the modules included inside the app
                 for (int module : IncludedModules.MODULES) {
                     FileHelper.extractRawResource(resources, module, modules_folder);
                 }
 
+                // Set first_time to be false so we won't be here again
                 sp.edit().putBoolean("first_time", false).apply();
+
             } catch (IOException e) {
                 Toast.makeText(this, "Error while initializing modules: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 e.printStackTrace();

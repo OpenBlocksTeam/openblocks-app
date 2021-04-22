@@ -1,0 +1,31 @@
+{
+  "modules": {
+    "ezmanager.jar": [
+      {
+        "name": "EzManager",
+        "description": "A simple, and easy Project Manager module for OpenBlocks; https://github.com/OpenBlocksTeam/ezmanager",
+        "classpath": "com.openblocks.module.EzManager",
+        "version": 1,
+        "lib_version": 1,
+        "type": "PROJECT_MANAGER"
+      }
+    ],
+    "simple_parser.jar": [
+      {
+        "name": "SimpleParser",
+        "description": "A simple parser module used for testing",
+        "classpath": "com.openblocks.modules.simple.parser.SimpleParser",
+        "version": 1,
+        "lib_version": 1,
+        "type": "PROJECT_PARSER"
+      }
+    ]
+  },
+  "active_modules": {
+    "PROJECT_MANAGER": {"jar": "ezmanager.jar", "name": "EzManager"},
+    "PROJECT_PARSER": {"jar": "simple_parser.jar", "name": "SimpleParser"},
+    "PROJECT_GUI_CODE": null,
+    "PROJECT_GUI_LAYOUT": null,
+    "BLOCKS_COLLECTION": null
+  }
+}

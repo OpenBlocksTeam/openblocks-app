@@ -3,9 +3,11 @@ package com.openblocks.android;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.FileUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +28,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.openblocks.android.constants.IncludedModules;
 import com.openblocks.android.databinding.ActivityMainBinding;
 import com.openblocks.android.fragments.main.ModulesFragment;
 import com.openblocks.android.fragments.main.ProjectsFragment;
@@ -47,7 +50,9 @@ import org.json.JSONException;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -127,9 +132,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Log.w(TAG, "onCreate: modules.json already exists on first time, continuing anyway");
                 }
 
+                Resources resources = getResources();
+
                 FileHelper.writeFile(modulesjson, "{\"modules\":{}, \"active_modules\":{}}".getBytes());
 
-                // TODO: EXTRACT / DOWNLOAD DEFAULT MODULES
+                for (int module : IncludedModules.MODULES) {
+                    FileHelper.extractRawResource(resources, module, modules_folder);
+                }
 
                 sp.edit().putBoolean("first_time", false).apply();
             } catch (IOException e) {

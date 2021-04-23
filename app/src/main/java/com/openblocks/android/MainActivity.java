@@ -113,6 +113,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Check if this is the first time the user has opened this app
         if (sp.getBoolean("first_time", true)) {
 
+            Toast.makeText(this, "Extracting default modules.. (first time only)", Toast.LENGTH_SHORT).show();
+
             // Oo, first time huh, let's initialize the modules folder, and extract our default modules there
             try {
                 // Initialize the modules folder
@@ -137,8 +139,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 FileHelper.extractRawResource(resources, R.raw.initial_modules_json, modules_folder, "modules.json");
 
                 // Then extract the modules included inside the app
-                for (int module : IncludedModules.MODULES) {
-                    FileHelper.extractRawResource(resources, module, modules_folder);
+                for (int i = 0; i < IncludedModules.MODULES.length; i++) {
+                    int module = IncludedModules.MODULES[i];
+
+                    FileHelper.extractRawResource(resources, module, modules_folder, IncludedModules.MODULE_NAMES[i]);
                 }
 
                 // Set first_time to be false so we won't be here again

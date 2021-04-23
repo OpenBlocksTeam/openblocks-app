@@ -34,21 +34,6 @@ public class FileHelper {
         writeFile(new File(dest, name), raw_resource_is);
     }
 
-    /**
-     * This static function extracts raw resource into the specified folder
-     * The name of the file will depends on the name of the resource name
-     * @param resources The resources
-     * @param res_id The raw resource id that wants to be extracted
-     * @param dest The destination folder
-     * @see #extractRawResource(Resources, int, File, String)
-     * @throws IOException When something goes wrong
-     */
-    public static void extractRawResource(Resources resources, @RawRes int res_id, File dest) throws IOException {
-        String name = resources.getResourceEntryName(res_id);
-
-        extractRawResource(resources, res_id, dest, name);
-    }
-
     public static void writeFile(File file, InputStream stream) throws IOException {
         FileOutputStream file_output = new FileOutputStream(file);
         byte[] buffer = new byte[1024];

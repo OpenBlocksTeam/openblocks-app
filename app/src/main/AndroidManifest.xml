@@ -16,6 +16,7 @@
         <activity android:name=".SettingsActivity" />
         <activity android:name=".AboutActivity" />
         <activity android:name=".ProjectEditorActivity" />
+        <activity android:name=".ModuleConfigActivity"/>
         <activity android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

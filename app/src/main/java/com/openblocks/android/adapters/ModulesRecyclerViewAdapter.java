@@ -82,23 +82,35 @@ public class ModulesRecyclerViewAdapter extends RecyclerView.Adapter<ModulesRecy
         Resources resources = context.getResources();
         Resources.Theme theme = context.getTheme();
 
+        int module_icon;
+
         switch (item.module_type) {
             case PROJECT_MANAGER:
-                holder.module_type.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_project_manager, theme));
+                module_icon = R.drawable.ic_project_manager;
                 break;
+
             case PROJECT_PARSER:
-                holder.module_type.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_project_parser, theme));
+                module_icon = R.drawable.ic_project_parser;
                 break;
+
             case PROJECT_LAYOUT_GUI:
-                holder.module_type.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_layout, theme));
+                module_icon = R.drawable.ic_layout;
                 break;
+
             case PROJECT_CODE_GUI:
-                holder.module_type.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_code, theme));
+                module_icon = R.drawable.ic_code;
                 break;
+
             case PROJECT_COMPILER:
-                holder.module_type.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_compiler, theme));
+                module_icon = R.drawable.ic_compiler;
+                break;
+
+            default:
+                module_icon = R.drawable.ic_unknwon;
                 break;
         }
+
+        holder.module_type.setImageDrawable(ResourcesCompat.getDrawable(resources, module_icon, theme));
 
         holder.body.setOnClickListener(v -> {
             Intent open_config = new Intent(activity.get(), ModuleInfoActivity.class);

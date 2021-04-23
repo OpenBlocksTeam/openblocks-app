@@ -3,10 +3,13 @@ package com.openblocks.android.modman.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
+
 import com.openblocks.moduleinterface.OpenBlocksModule;
 import com.openblocks.moduleinterface.models.config.OpenBlocksConfig;
 
 import java.io.File;
+import java.util.Objects;
 
 public class Module implements Parcelable {
     public String name;
@@ -70,5 +73,27 @@ public class Module implements Parcelable {
         dest.writeInt(lib_version);
         dest.writeString(jar_file.getAbsolutePath());
         dest.writeString(module_type.toString());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Module module = (Module) o;
+
+        return version == module.version &&
+                lib_version == module.lib_version &&
+                name.equals(module.name) &&
+                description.equals(module.description) &&
+                classpath.equals(module.classpath) &&
+                filename.equals(module.filename) &&
+                jar_file.equals(module.jar_file) &&
+                module_type == module.module_type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, classpath, filename, version, lib_version, jar_file, module_type);
     }
 }

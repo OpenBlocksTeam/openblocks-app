@@ -197,6 +197,9 @@ public class ConfigRecyclerViewAdapter extends RecyclerView.Adapter<ConfigRecycl
 
     @Override
     public int getItemCount() {
+        if (config.getConfigs() == null || config.getConfigs().isEmpty()) {
+            return 0;
+        }
         return config.getConfigs().size();
     }
 

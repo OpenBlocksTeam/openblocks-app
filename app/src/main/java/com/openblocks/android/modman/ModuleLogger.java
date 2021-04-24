@@ -22,7 +22,7 @@ public class ModuleLogger implements Logger {
         return logger;
     }
 
-    SpannableStringBuilder log;
+    SpannableStringBuilder log = new SpannableStringBuilder();
     Class<Object> class_before;
 
     LiveLog liveLog = log -> { };

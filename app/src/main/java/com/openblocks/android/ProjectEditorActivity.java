@@ -248,7 +248,7 @@ public class ProjectEditorActivity extends AppCompatActivity {
                 case 1:
                     return "Code";
                 case 2:
-                    return "Components";
+                    return "Logs";
                 default:
                     return null;
             }

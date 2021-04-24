@@ -3,6 +3,7 @@ package com.openblocks.android;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.openblocks.android.constants.IncludedModules;
 import com.openblocks.android.databinding.ActivityMainBinding;
 import com.openblocks.android.fragments.main.ModulesFragment;
 import com.openblocks.android.fragments.main.ProjectsFragment;
@@ -111,6 +113,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Check if this is the first time the user has opened this app
         if (sp.getBoolean("first_time", true)) {
 
+            Toast.makeText(this, "Extracting default modules.. (first time only)", Toast.LENGTH_SHORT).show();
+
             // Oo, first time huh, let's initialize the modules folder, and extract our default modules there
             try {
                 // Initialize the modules folder
@@ -120,18 +124,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Log.w(TAG, "onCreate: modules folder already exists on init, continuing anyway");
                 }
 
-                // Initialize the modules.json file
-                File modulesjson = new File(modules_folder, "modules.json");
+                // FIXME: 4/22/21 Somehow use the variable modules_json within the extraction
 
-                if (!modulesjson.createNewFile()) {
+                // Initialize the modules.json file
+                File modules_json = new File(modules_folder, "modules.json");
+
+                if (!modules_json.createNewFile()) {
                     Log.w(TAG, "onCreate: modules.json already exists on first time, continuing anyway");
                 }
 
-                FileHelper.writeFile(modulesjson, "{\"modules\":{}, \"active_modules\":{}}".getBytes());
+                Resources resources = getResources();
 
-                // TODO: EXTRACT / DOWNLOAD DEFAULT MODULES
+                // Extract the initial modules.json
+                FileHelper.extractRawResource(resources, R.raw.initial_modules_json, modules_folder, "modules.json");
 
+                // Then extract the modules included inside the app
+                for (int i = 0; i < IncludedModules.MODULES.length; i++) {
+                    int module = IncludedModules.MODULES[i];
+
+                    FileHelper.extractRawResource(resources, module, modules_folder, IncludedModules.MODULE_NAMES[i]);
+                }
+
+                // Set first_time to be false so we won't be here again
                 sp.edit().putBoolean("first_time", false).apply();
+
             } catch (IOException e) {
                 Toast.makeText(this, "Error while initializing modules: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 e.printStackTrace();

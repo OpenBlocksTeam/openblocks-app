@@ -86,3 +86,6 @@ lint/tmp/
 
 # Ignore the binaries
 app/src/main/jniLibs/**/
+
+.idea/compiler.xml
+.idea/misc.xml

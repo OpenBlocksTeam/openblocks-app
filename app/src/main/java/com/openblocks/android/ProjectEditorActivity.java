@@ -31,11 +31,13 @@ import com.openblocks.moduleinterface.exceptions.CompileException;
 import com.openblocks.moduleinterface.exceptions.ParseException;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
+import com.openblocks.moduleinterface.models.code.BlockCode;
 import com.openblocks.moduleinterface.models.code.ParseBlockTask;
 import com.openblocks.moduleinterface.models.compiler.IncludedBinary;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksCode;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksLayout;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -139,12 +141,12 @@ public class ProjectEditorActivity extends AppCompatActivity {
 
         Module compiler_module = moduleManager.getActiveModule(OpenBlocksModule.Type.PROJECT_COMPILER);
 
-        OpenBlocksModule.BlocksCollection   blocks_collection     = ModuleLoader.load(this, blocks_collection_module, OpenBlocksModule.BlocksCollection.class);
-        OpenBlocksModule.ProjectCompiler    compiler               = ModuleLoader.load(this, compiler_module, OpenBlocksModule.ProjectCompiler.class);
+        OpenBlocksModule.BlocksCollection   blocks_collection       = ModuleLoader.load(this, blocks_collection_module, OpenBlocksModule.BlocksCollection.class);
+        OpenBlocksModule.ProjectCompiler    compiler                = ModuleLoader.load(this, compiler_module, OpenBlocksModule.ProjectCompiler.class);
 
         IncludedBinaries.init(this);
 
-        HashMap<String, Pair<String, ParseBlockTask>> blocks = BlockCollectionParser.parseBlocks(blocks_collection.getBlocks());
+        ArrayList<BlockCode> blocks = BlockCollectionParser.getBlocks(blocks_collection);
 
         // Initialize the compiler
         compiler.initializeCompiler(
@@ -172,7 +174,7 @@ public class ProjectEditorActivity extends AppCompatActivity {
 
         ViewPager viewPager = findViewById(R.id.viewPager);
 
-        ProjectEditorViewPagerAdapter viewPagerAdapter = new ProjectEditorViewPagerAdapter(getSupportFragmentManager(), code, layout, code_save, layout_save);
+        ProjectEditorViewPagerAdapter viewPagerAdapter = new ProjectEditorViewPagerAdapter(getSupportFragmentManager(), code, layout, metadata, code_save, layout_save);
         viewPager.setAdapter(viewPagerAdapter);
 
         TabLayout tabLayout = findViewById(R.id.tabs);
@@ -185,11 +187,11 @@ public class ProjectEditorActivity extends AppCompatActivity {
      * @param blocks The blocks generated from {@link BlockCollectionParser#parseBlocks(Object[])}
      * @return The parsed collection
      */
-    private HashMap<String, ParseBlockTask> convertParsedBlocks(HashMap<String, Pair<String, ParseBlockTask>> blocks) {
+    private HashMap<String, ParseBlockTask> convertParsedBlocks(ArrayList<BlockCode> blocks) {
         HashMap<String, ParseBlockTask> result = new HashMap<>();
 
-        for (String key : blocks.keySet()) {
-            result.put(key, blocks.get(key).second);
+        for (BlockCode block : blocks) {
+            result.put(block.opcode, block.parseBlockTask);
         }
 
         return result;
@@ -201,11 +203,11 @@ public class ProjectEditorActivity extends AppCompatActivity {
      * @param blocks The blocks generated from {@link BlockCollectionParser#parseBlocks(Object[])}
      * @return The parsed collection
      */
-    private HashMap<String, String> convertParsedBlocks2(HashMap<String, Pair<String, ParseBlockTask>> blocks) {
+    private HashMap<String, String> convertParsedBlocks2(ArrayList<BlockCode> blocks) {
         HashMap<String, String> result = new HashMap<>();
 
-        for (String key : blocks.keySet()) {
-            result.put(key, blocks.get(key).first);
+        for (BlockCode block : blocks) {
+            result.put(block.opcode, block.format);
         }
 
         return result;
@@ -217,16 +219,18 @@ public class ProjectEditorActivity extends AppCompatActivity {
         
         OpenBlocksCode code;
         OpenBlocksLayout layout;
+        OpenBlocksProjectMetadata metadata;
 
         SaveCallback<OpenBlocksCode> code_save;
         SaveCallback<OpenBlocksLayout> layout_save;
 
         public ProjectEditorViewPagerAdapter(
-                FragmentManager fm, OpenBlocksCode code, OpenBlocksLayout layout,
+                FragmentManager fm, OpenBlocksCode code, OpenBlocksLayout layout, OpenBlocksProjectMetadata metadata,
                 SaveCallback<OpenBlocksCode> code_save, SaveCallback<OpenBlocksLayout> layout_save) {
             super(fm);
             this.code = code;
             this.layout = layout;
+            this.metadata = metadata;
             this.code_save = code_save;
             this.layout_save = layout_save;
         }
@@ -255,9 +259,9 @@ public class ProjectEditorActivity extends AppCompatActivity {
         public Fragment getItem(int _position) {
             switch (_position) {
                 case 0:
-                    return new LayoutEditFragment(layout, code, layout_save);
+                    return new LayoutEditFragment(layout, code, metadata, layout_save);
                 case 1:
-                    return new CodeEditFragment(code, layout, code_save);
+                    return new CodeEditFragment(code, layout, metadata, code_save);
                 case 2:
                     return new LogFragment();
                 default:

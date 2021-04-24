@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -31,6 +32,7 @@ import com.openblocks.android.constants.IncludedModules;
 import com.openblocks.android.databinding.ActivityMainBinding;
 import com.openblocks.android.fragments.main.ModulesFragment;
 import com.openblocks.android.fragments.main.ProjectsFragment;
+import com.openblocks.android.helpers.BlockCollectionParser;
 import com.openblocks.android.helpers.FileHelper;
 import com.openblocks.android.modman.ModuleJsonCorruptedException;
 import com.openblocks.android.modman.ModuleLoader;
@@ -42,6 +44,8 @@ import com.openblocks.moduleinterface.OpenBlocksModule;
 import com.openblocks.moduleinterface.exceptions.ParseException;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
+import com.openblocks.moduleinterface.models.code.BlockCode;
+import com.openblocks.moduleinterface.models.code.ParseBlockTask;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksCode;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksLayout;
 
@@ -50,6 +54,7 @@ import org.json.JSONException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -278,8 +283,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     String new_id = project_parser.generateFreeId(project_ids);
 
+                    ArrayList<BlockCode> blocks = BlockCollectionParser.getBlocks(blocks_collection);
+
                     // Initialize the project
-                    OpenBlocksCode initialized_code = blocks_collection.initializeNewCode();
+                    OpenBlocksCode initialized_code = blocks_collection.initializeNewCode(blocks);
 
                     // Set the block collection name
                     initialized_code.block_collection_name =
@@ -358,8 +365,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // TODO: Handle project_parser being null (for some reason)
             String new_id = project_parser.generateFreeId(project_ids);
 
+            ArrayList<BlockCode> blocks = BlockCollectionParser.getBlocks(blocks_collection);
+
             // Initialize the project
-            OpenBlocksCode initialized_code = blocks_collection.initializeNewCode();
+            OpenBlocksCode initialized_code = blocks_collection.initializeNewCode(blocks);
             OpenBlocksLayout initialized_layout = layout_editor.initializeNewLayout();
             OpenBlocksRawProject new_project = project_parser.saveProject(metadata, initialized_code, initialized_layout);
 

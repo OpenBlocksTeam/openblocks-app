@@ -14,6 +14,7 @@ import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.moduleinterface.OpenBlocksModule;
 import com.openblocks.moduleinterface.callbacks.SaveCallback;
+import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksCode;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksLayout;
 
@@ -21,12 +22,14 @@ public class CodeEditFragment extends Fragment {
 
     OpenBlocksCode code;
     OpenBlocksLayout layout;
+    OpenBlocksProjectMetadata metadata;
     SaveCallback<OpenBlocksCode> code_save;
     OpenBlocksModule.ProjectCodeGUI module_instance;
 
-    public CodeEditFragment(OpenBlocksCode code, OpenBlocksLayout layout, SaveCallback<OpenBlocksCode> code_save) {
+    public CodeEditFragment(OpenBlocksCode code, OpenBlocksLayout layout, OpenBlocksProjectMetadata metadata, SaveCallback<OpenBlocksCode> code_save) {
         this.code = code;
         this.layout = layout;
+        this.metadata = metadata;
         this.code_save = code_save;
     }
 
@@ -44,7 +47,7 @@ public class CodeEditFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_code_edit, container, false);
-        module_instance.show(requireContext(), root.findViewById(R.id.code_edit_parent), code, layout, code_save);
+        module_instance.show(requireContext(), root.findViewById(R.id.code_edit_parent), code, layout, metadata, code_save);
         return root;
     }
 }

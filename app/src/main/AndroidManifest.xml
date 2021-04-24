@@ -18,10 +18,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity"/>
         </activity>
-        <activity android:name=".ModuleConfigActivity" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".AboutActivity" />
         <activity android:name=".ProjectEditorActivity" />
+        <activity android:name=".ModuleConfigActivity"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

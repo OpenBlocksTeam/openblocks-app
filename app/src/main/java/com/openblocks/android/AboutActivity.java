@@ -50,7 +50,7 @@ public class AboutActivity extends AppCompatActivity {
         List<ContributorItem> contributors_list;
 
         try {
-            URL url = new URL("http://www.android.com/");
+            URL url = new URL("https://api.github.com/repos/OpenBlocksTeam/openblocks-app/contributors");
             HttpURLConnection url_connection = (HttpURLConnection) url.openConnection();
 
             InputStream in = new BufferedInputStream(url_connection.getInputStream());

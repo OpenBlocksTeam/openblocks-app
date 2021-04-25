@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.ShapeAppearanceModel;
@@ -65,6 +66,8 @@ public class ContributorsRecyclerViewAdapter extends RecyclerView.Adapter<Contri
                     .setAllCorners(CornerFamily.ROUNDED, 100)
                     .build()
         );
+
+        Glide.with(activity.get()).load(current_item.profile_picture_url).into(holder.profile_picture);
     }
 
     @Override

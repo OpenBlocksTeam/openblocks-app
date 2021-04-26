@@ -47,10 +47,10 @@ public class ModuleInfoActivity extends AppCompatActivity {
 
     public void activateModule(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Activate Module");
-        builder.setMessage("Are you sure you want to activate this module?");
+        builder.setTitle(R.string.activate_module);
+        builder.setMessage(R.string.dialog_activate_module_confirmation);
 
-        builder.setPositiveButton("Yes", (dialog, which) -> {
+        builder.setPositiveButton(R.string.yes, (dialog, which) -> {
             // Activate the module
             moduleManager.activateModule(module.module_type, module);
 
@@ -59,12 +59,12 @@ public class ModuleInfoActivity extends AppCompatActivity {
                 Toast.makeText(this, "Failed to activate module for an unknown reason, ModuleInfoActivity.java at line 61", Toast.LENGTH_LONG).show();
 
             } else {
-                Toast.makeText(this, "Module activated successfully, restarting", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.module_activate_success_restarting, Toast.LENGTH_LONG).show();
                 recreate();
             }
         });
 
-        builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+        builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.dismiss());
 
         builder.create().show();
     }
@@ -97,22 +97,22 @@ public class ModuleInfoActivity extends AppCompatActivity {
 
     private void removeModule() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Remove Module");
-        builder.setMessage("Are you sure you want to remove this module?");
+        builder.setTitle(R.string.remove_module);
+        builder.setMessage(R.string.dialog_remove_module_confirmation);
 
-        builder.setPositiveButton("Yes", (dialog, which) -> {
+        builder.setPositiveButton(R.string.yes, (dialog, which) -> {
             if (isModuleActive()) {
-                Toast.makeText(this, "You can't remove an active module", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.failure_remove_active_module, Toast.LENGTH_SHORT).show();
                 return;
             }
 
             moduleManager.removeModule(module.module_type, module);
-            Toast.makeText(this, module.name + " removed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, module.name + getString(R.string.success_remove_module), Toast.LENGTH_SHORT).show();
 
             finish();
         });
 
-        builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+        builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.dismiss());
 
         builder.create().show();
     }

@@ -93,8 +93,8 @@ public class ProjectEditorActivity extends AppCompatActivity {
         if (blocks_collection_module == null) {
             // Nope, there is no blocks collection with this name
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Error finding blocks collection");
-            builder.setMessage("Blocks Collection with name " + code.block_collection_name + " not found, please find the module and install it to edit this project.");
+            builder.setTitle(R.string.failure_find_blocks_collection_title);
+            builder.setMessage(String.format(getString(R.string.failure_find_blocks_collection_description), code.block_collection_name));
             builder.create().show();
 
             finish();
@@ -115,7 +115,7 @@ public class ProjectEditorActivity extends AppCompatActivity {
                     )
             );
 
-            Toast.makeText(this, "Code saved!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.success_code_save, Toast.LENGTH_SHORT).show();
         };
 
         SaveCallback<OpenBlocksLayout> layout_save = layout_new -> {
@@ -132,7 +132,7 @@ public class ProjectEditorActivity extends AppCompatActivity {
                     )
             );
 
-            Toast.makeText(this, "Layout saved!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.success_layout_save, Toast.LENGTH_SHORT).show();
         };
 
         // And bind UI elements I guess
@@ -166,8 +166,8 @@ public class ProjectEditorActivity extends AppCompatActivity {
             } catch (CompileException e) {
                 e.printStackTrace();
                 AlertDialog.Builder builder = new AlertDialog.Builder(ProjectEditorActivity.this);
-                builder.setTitle("An error occurred while compiling");
-                builder.setMessage("The compiler module (" + compiler_module.name + ") said:\n" + e.message);
+                builder.setTitle(R.string.failure_compile_title);
+                builder.setMessage(R.string.failure_compiler_description);
                 builder.create().show();
             }
         });

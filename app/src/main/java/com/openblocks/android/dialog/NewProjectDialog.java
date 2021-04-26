@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.openblocks.android.R;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
 
@@ -15,7 +16,7 @@ public class NewProjectDialog extends ProjectMetadataEditDialog {
         super(context, new OpenBlocksProjectMetadata("", "", "", 1), newProjectId);
 
         projectId = newProjectId;
-        titleText = "New project";
-        buttonText = "Create project";
+        titleText = context.getString(R.string.new_project);
+        buttonText = context.getString(R.string.create_project);
     }
 }

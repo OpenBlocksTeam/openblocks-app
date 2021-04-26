@@ -37,17 +37,17 @@
             <com.google.android.material.tabs.TabItem
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:text="Layout"/>
+                android:text="@string/project_editor_layout"/>
 
             <com.google.android.material.tabs.TabItem
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:text="Code" />
+                android:text="@string/project_editor_code" />
 
             <com.google.android.material.tabs.TabItem
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:text="Components" />
+                android:text="@string/project_editor_logs" />
         </com.google.android.material.tabs.TabLayout>
     </com.google.android.material.appbar.AppBarLayout>
 

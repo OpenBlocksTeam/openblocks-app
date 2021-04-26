@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Check if this is the first time the user has opened this app
         if (sp.getBoolean("first_time", true)) {
 
-            Toast.makeText(this, "Extracting default modules.. (first time only)", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.extracting_default_modules, Toast.LENGTH_SHORT).show();
 
             // Oo, first time huh, let's initialize the modules folder, and extract our default modules there
             try {
@@ -233,8 +233,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fabModules.hide();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            fabProjects.setTooltipText("New project");
-            fabModules.setTooltipText("Add module");
+            fabProjects.setTooltipText(getString(R.string.new_project));
+            fabModules.setTooltipText(getString(R.string.add_module));
         }
 
         // Listeners
@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void fabProjectsClicked(View view) {
         // Handle a not implemented Project parser
         if (project_parser == null) {
-            Toast.makeText(this, "No Project parser module has been loaded yet.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.failure_no_parser_module, Toast.LENGTH_SHORT).show();
             return;
         }
         // Show the "New project" dialog
@@ -348,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 module_string.append(module1.name).append(" ");
             }
 
-            Toast.makeText(this, "Module " + module_string + "has successfully imported, restarting activity", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, String.format(getString(R.string.module_success_import), module_string.toString()), Toast.LENGTH_SHORT).show();
 
             // Ok then refresh our activity
             recreate();

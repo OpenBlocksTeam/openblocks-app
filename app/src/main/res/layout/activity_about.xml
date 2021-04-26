@@ -60,8 +60,7 @@
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="32dp"
-                android:justificationMode="inter_word"
-                android:text="OpenBlocks is a community-driven modular android application that can create android apps using block programming like scratch. Every component for OpenBlocks is modular, these modules can be loaded and unloaded at runtime, giving users freedom on what they want to do with this app. Create customizable blocks, Custom widgets, Custom manager, Custom project type, Custom everything, Anything you want with it!"
+                android:text="@string/openblocks_description"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/links_flow" />
@@ -72,7 +71,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:text="Contributors: "
+                android:text="@string/contributors"
                 app:layout_constraintStart_toStartOf="@+id/textView4"
                 app:layout_constraintTop_toBottomOf="@+id/textView4" />
 

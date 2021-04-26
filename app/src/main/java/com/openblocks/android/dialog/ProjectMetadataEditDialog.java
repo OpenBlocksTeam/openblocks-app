@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.openblocks.android.R;
 import com.openblocks.android.databinding.DialogEditProjectMetadataBinding;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 
@@ -23,14 +24,17 @@ public class ProjectMetadataEditDialog extends AlertDialog {
 
     // TODO: Set title to "Edit <project name>"
 
-    protected String titleText = "Edit";
-    protected String buttonText = "Save project";
+    protected String titleText;
+    protected String buttonText;
 
     protected OnMetadataSavedListener listener;
 
     public ProjectMetadataEditDialog(@NonNull Context context, OpenBlocksProjectMetadata metadata, String project_id) {
         super(context);
         projectId = project_id;
+        
+        titleText = context.getString(R.string.edit);
+        buttonText = context.getString(R.string.save_project);
 
         DialogEditProjectMetadataBinding binding = DialogEditProjectMetadataBinding.inflate(getLayoutInflater());
         setView(binding.getRoot());
@@ -88,25 +92,25 @@ public class ProjectMetadataEditDialog extends AlertDialog {
      */
     protected boolean validateInput() {
         if (appName.getText().toString().isEmpty()) {
-            appName.setError("Missing app name");
+            appName.setError(getContext().getString(R.string.missing_app_name));
         } else {
             appName.setError(null);
         }
 
         if (packageName.getText().toString().isEmpty()) {
-            packageName.setError("Missing package name");
+            packageName.setError(getContext().getString(R.string.missing_package_name));
         } else {
             packageName.setError(null);
         }
 
         if (versionName.getText().toString().isEmpty()) {
-            versionName.setError("Missing version name");
+            versionName.setError(getContext().getString(R.string.missing_version_name));
         } else {
             versionName.setError(null);
         }
 
         if (versionCode.getText().toString().isEmpty()) {
-            versionCode.setError("Missing version code");
+            versionCode.setError(getContext().getString(R.string.missing_version_code));
         } else {
             versionCode.setError(null);
         }

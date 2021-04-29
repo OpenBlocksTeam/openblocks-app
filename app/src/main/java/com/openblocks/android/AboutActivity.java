@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ import java.util.List;
 public class AboutActivity extends AppCompatActivity {
 
     private ActivityAboutBinding binding;
+    private JSONArray contributors;
+    private List<ContributorItem> contributors_list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,62 +49,56 @@ public class AboutActivity extends AppCompatActivity {
             toolbar.setNavigationOnClickListener(v -> onBackPressed());
         }
 
-        JSONArray contributors;
-        List<ContributorItem> contributors_list;
+        runOnUiThread(() -> {
+            try {
+                URL url = new URL("https://api.github.com/repos/OpenBlocksTeam/openblocks-app/contributors");
+                HttpURLConnection url_connection = (HttpURLConnection) url.openConnection();
 
-        try {
-            URL url = new URL("https://api.github.com/repos/OpenBlocksTeam/openblocks-app/contributors");
-            HttpURLConnection url_connection = (HttpURLConnection) url.openConnection();
+                InputStream in = new BufferedInputStream(url_connection.getInputStream());
+                ByteArrayOutputStream output_stream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
 
-            InputStream in = new BufferedInputStream(url_connection.getInputStream());
-            ByteArrayOutputStream output_stream = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
+                while (in.read(buffer) != -1) {
+                    output_stream.write(buffer);
+                }
 
-            while (in.read(buffer) != -1) {
-                output_stream.write(buffer);
+                url_connection.disconnect();
+
+                contributors = new JSONArray(output_stream.toString("utf-8"));
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "IOException: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Corrupted json: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
 
-            url_connection.disconnect();
+            contributors_list = new ArrayList<>();
 
-            contributors = new JSONArray(output_stream.toString("utf-8"));
+            try {
+                for (int i = 0; i < contributors.length(); i++) {
+                    JSONObject contributor = contributors.getJSONObject(i);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "IOException: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    contributors_list.add(
+                            new ContributorItem(
+                                    contributor.getString("login"),
+                                    contributor.getString("avatar_url"),
+                                    contributor.getString("html_url")
+                            )
+                    );
+                }
 
-            return;
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Corrupted json: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Unexpected json error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
 
-            return;
-        }
-
-        contributors_list = new ArrayList<>();
-
-        try {
-            for (int i = 0; i < contributors.length(); i++) {
-                JSONObject contributor = contributors.getJSONObject(i);
-
-                contributors_list.add(
-                        new ContributorItem(
-                                contributor.getString("login"),
-                                contributor.getString("avatar_url"),
-                                contributor.getString("html_url")
-                        )
-                );
+                return;
             }
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Unexpected json error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-
-            return;
-        }
-
-        ContributorsRecyclerViewAdapter adapter = new ContributorsRecyclerViewAdapter(contributors_list, this);
-        RecyclerView contributors_recycler_view = binding.contributors;
-        contributors_recycler_view.setAdapter(adapter);
-        contributors_recycler_view.setLayoutManager(new LinearLayoutManager(this));
+            ContributorsRecyclerViewAdapter adapter = new ContributorsRecyclerViewAdapter(contributors_list, this);
+            RecyclerView contributors_recycler_view = binding.contributors;
+            contributors_recycler_view.setAdapter(adapter);
+            contributors_recycler_view.setLayoutManager(new LinearLayoutManager(this));
+        });
     }
 }

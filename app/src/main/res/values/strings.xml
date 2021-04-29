@@ -29,7 +29,7 @@
     <string name="module_success_import">Module %s has successfully imported, restarting activity</string>
     <string name="module_activate_success_restarting">Module activated successfully, restarting</string>
 
-    <string name="new_project">New project</string>
+    <!-- <string name="new_project">New project</string> -->
     <string name="add_module">Add module</string>
 
     <string name="yes">Yes</string>

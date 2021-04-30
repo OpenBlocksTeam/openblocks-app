@@ -12,13 +12,13 @@
         android:layout_height="wrap_content">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/toolBarSettings"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:elevation="8dp"
             app:navigationIcon="@drawable/ic_arrow_back"
             app:title="@string/menu_settings"
-            app:titleTextColor="@color/colorOnPrimary"></androidx.appcompat.widget.Toolbar>
+            app:titleTextColor="@color/colorOnPrimary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

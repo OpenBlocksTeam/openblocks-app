@@ -28,7 +28,7 @@ public class ModuleInfoActivity extends AppCompatActivity {
 
         module = getIntent().getParcelableExtra("module");
 
-        setSupportActionBar(binding.toolbar);
+        setSupportActionBar(binding.toolBarModuleInfo);
 
         bindInfos();
     }

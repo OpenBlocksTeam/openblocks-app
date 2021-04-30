@@ -2,7 +2,6 @@ package com.openblocks.android;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,7 +15,6 @@ import android.widget.Toast;
 
 import com.openblocks.android.adapters.ConfigRecyclerViewAdapter;
 import com.openblocks.android.modman.ModuleLogger;
-import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.moduleinterface.OpenBlocksModule;
 import com.openblocks.moduleinterface.callbacks.Logger;
@@ -44,7 +42,7 @@ public class ModuleConfigActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_module_config);
 
-        setSupportActionBar(findViewById(R.id.toolbar));
+        setSupportActionBar(findViewById(R.id.toolBarModuleConfig));
         // We need a back button
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 

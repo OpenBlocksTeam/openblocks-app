@@ -2,7 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_header_height"
-    android:background="@mipmap/ic_launcher_background"
+    android:background="@color/colorPrimary"
     android:gravity="bottom"
     android:orientation="vertical"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -15,10 +15,10 @@
         android:id="@+id/imageView"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:scaleType="centerCrop"
         android:scaleX="2"
         android:scaleY="2"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
         app:srcCompat="@drawable/ic_launcher_foreground" />
 
     <TextView

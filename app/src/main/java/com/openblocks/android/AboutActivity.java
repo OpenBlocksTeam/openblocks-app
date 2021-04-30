@@ -49,7 +49,7 @@ public class AboutActivity extends AppCompatActivity {
             toolbar.setNavigationOnClickListener(v -> onBackPressed());
         }
 
-        runOnUiThread(() -> {
+        new Thread(() -> {
             try {
                 URL url = new URL("https://api.github.com/repos/OpenBlocksTeam/openblocks-app/contributors");
                 HttpURLConnection url_connection = (HttpURLConnection) url.openConnection();
@@ -65,40 +65,45 @@ public class AboutActivity extends AppCompatActivity {
                 url_connection.disconnect();
 
                 contributors = new JSONArray(output_stream.toString("utf-8"));
+                runOnUiThread(() -> {
+                    displayContents(contributors);
+                });
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "IOException: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "IOException: " + e.getMessage(), Toast.LENGTH_LONG).show();
             } catch (JSONException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "Corrupted json: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Corrupted json: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }).start();
+    }
+
+    private void displayContents(JSONArray jsonArray) {
+        contributors_list = new ArrayList<>();
+
+        try {
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject contributor = jsonArray.getJSONObject(i);
+
+                contributors_list.add(
+                        new ContributorItem(
+                                contributor.getString("login"),
+                                contributor.getString("avatar_url"),
+                                contributor.getString("html_url")
+                        )
+                );
             }
 
-            contributors_list = new ArrayList<>();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Unexpected json error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
 
-            try {
-                for (int i = 0; i < contributors.length(); i++) {
-                    JSONObject contributor = contributors.getJSONObject(i);
+            return;
+        }
 
-                    contributors_list.add(
-                            new ContributorItem(
-                                    contributor.getString("login"),
-                                    contributor.getString("avatar_url"),
-                                    contributor.getString("html_url")
-                            )
-                    );
-                }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Unexpected json error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-
-                return;
-            }
-
-            ContributorsRecyclerViewAdapter adapter = new ContributorsRecyclerViewAdapter(contributors_list, this);
-            RecyclerView contributors_recycler_view = binding.contributors;
-            contributors_recycler_view.setAdapter(adapter);
-            contributors_recycler_view.setLayoutManager(new LinearLayoutManager(this));
-        });
+        ContributorsRecyclerViewAdapter adapter = new ContributorsRecyclerViewAdapter(contributors_list, this);
+        RecyclerView contributors_recycler_view = binding.contributors;
+        contributors_recycler_view.setAdapter(adapter);
+        contributors_recycler_view.setLayoutManager(new LinearLayoutManager(this));
     }
 }

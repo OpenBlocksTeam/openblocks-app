@@ -1,7 +1,6 @@
 package com.openblocks.android.modman;
 
 import android.content.Context;
-import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
@@ -20,9 +19,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
@@ -169,7 +167,7 @@ public class ModuleManager {
             if (module.getName().equals("modules.json")) {
 
                 try {
-                    JSONObject modules_json = new JSONObject(FileHelper.readFile(module));
+                    JSONObject modules_json = new JSONObject(new String(FileHelper.readFile(module), StandardCharsets.UTF_8));
 
                     modules_information = modules_json.getJSONObject("modules");
                     active_modules_json = modules_json.getJSONObject("active_modules");
@@ -492,7 +490,7 @@ public class ModuleManager {
 
         // Then parse it
         File modules_json = new File(modules_directory, "modules.json");
-        JSONObject modules_info = new JSONObject(FileHelper.readFile(modules_json));
+        JSONObject modules_info = new JSONObject(new String(FileHelper.readFile(modules_json), StandardCharsets.UTF_8));
 
         // Loop per each type
         for (OpenBlocksModule.Type type: active_modules.keySet()) {
@@ -529,7 +527,7 @@ public class ModuleManager {
 
         // Then parse it
         File modules_json = new File(modules_directory, "modules.json");
-        JSONObject modules_info = new JSONObject(FileHelper.readFile(modules_json));
+        JSONObject modules_info = new JSONObject(new String(FileHelper.readFile(modules_json), StandardCharsets.UTF_8));
 
         // Check if modules key is set, if not, set it
         if (!modules_info.has("modules")) {

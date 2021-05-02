@@ -8,6 +8,7 @@ import androidx.annotation.RawRes;
 import androidx.core.util.Pair;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -79,25 +80,21 @@ public class FileHelper {
     }
 
     @NonNull
-    public static String readFile(File file) throws IOException {
+    public static byte[] readFile(File file) throws IOException {
         return readFile(file.getAbsolutePath());
     }
-
-    // Copied from: https://www.journaldev.com/9400/android-external-storage-read-write-save-file
+    
     @NonNull
-    public static String readFile(String path) throws IOException {
-        StringBuilder output = new StringBuilder();
-        FileInputStream fis = new FileInputStream(path);
-        DataInputStream in = new DataInputStream(fis);
-        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+    public static byte[] readFile(String path) throws IOException {
+        FileInputStream inputStream = new FileInputStream(path);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        String strLine;
+        byte[] buffer = new byte[1024];
 
-        while ((strLine = br.readLine()) != null) {
-            output.append(strLine);
+        if (inputStream.read(buffer) != -1) {
+            outputStream.write(buffer);
         }
 
-        in.close();
-        return output.toString();
+        return outputStream.toByteArray();
     }
 }

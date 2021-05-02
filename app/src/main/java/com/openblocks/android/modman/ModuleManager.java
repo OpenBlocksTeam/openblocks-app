@@ -202,7 +202,6 @@ public class ModuleManager {
                     String module_name = current_module_info.getString("name");
 
                     Module module = new Module(
-                            filename,
                             module_name,
                             current_module_info.getString("description"),
                             current_module_info.getString("classpath"),
@@ -439,7 +438,6 @@ public class ModuleManager {
 
             // Set the jar metadata
             module.jar_file = jar_file;
-            module.filename = jar_file.getName();
 
             result.add(module);
         }

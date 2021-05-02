@@ -12,7 +12,6 @@ public class Module implements Parcelable {
     public String name;
     public String description;
     public String classpath;
-    public String filename;
 
     public int version;
     public int lib_version;
@@ -23,8 +22,7 @@ public class Module implements Parcelable {
 
     public Module() { }
 
-    public Module(String filename, String name, String description, String classpath, int version, int lib_version, File jar_file, OpenBlocksModule.Type module_type) {
-        this.filename = filename;
+    public Module(String name, String description, String classpath, int version, int lib_version, File jar_file, OpenBlocksModule.Type module_type) {
         this.name = name;
         this.description = description;
         this.classpath = classpath;
@@ -84,13 +82,12 @@ public class Module implements Parcelable {
                 name.equals(module.name) &&
                 description.equals(module.description) &&
                 classpath.equals(module.classpath) &&
-                filename.equals(module.filename) &&
                 jar_file.equals(module.jar_file) &&
                 module_type == module.module_type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, classpath, filename, version, lib_version, jar_file, module_type);
+        return Objects.hash(name, description, classpath, version, lib_version, jar_file, module_type);
     }
 }

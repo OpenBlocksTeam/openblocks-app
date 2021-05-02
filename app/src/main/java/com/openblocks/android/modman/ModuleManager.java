@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
@@ -565,10 +566,23 @@ public class ModuleManager {
      * This function is used to find a module with the specific name
      * @param type The module type
      * @param name The module name
+     * @see #findModule(OpenBlocksModule.Type, Finder) 
      * @return The module with the specified type and name, will return null if none found
      */
     @Nullable
     public Module findModule(OpenBlocksModule.Type type, String name) {
+        return findModule(type, module -> name.equals(module.name));
+    }
+
+    /**
+     * This function is used to find a module with the specified finder
+     * @param type The module type
+     * @param finder The finder, will check for each modules
+     * @see #findModule(OpenBlocksModule.Type, String) 
+     * @return The module that checked correctly on the finder, will return null if none found
+     */
+    @Nullable
+    public Module findModule(OpenBlocksModule.Type type, Finder finder) {
         // Check if the modules list has any modules with the type
         if (!modules.containsKey(type))
             // None, return null instead
@@ -576,12 +590,19 @@ public class ModuleManager {
 
         // Loop over each modules and check if their name is the same
         for (Module module : modules.get(type)) {
-            if (module.name.equals(name)) {
+            if (finder.check(module)) {
                 return module;
             }
         }
 
         // If none, return null
         return null;
+    }
+
+    /**
+     * A simple interface used to find a module used in {@link #findModule(OpenBlocksModule.Type, Finder)}
+     */
+    public interface Finder {
+        boolean check(Module module);
     }
 }

@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
+import java.util.Objects;
 
 public class FileHelper {
 
@@ -58,6 +59,23 @@ public class FileHelper {
         outputStream.write(data);
         outputStream.flush();
         outputStream.close();
+    }
+
+    /**
+     * This function moves every file inside the specified directory to
+     * the destination directory
+     * @param dir The directory
+     * @param dest_dir The destination directory
+     */
+    public static void moveFiles(@NonNull File dir, @NonNull File dest_dir) {
+
+        if (dir.listFiles() == null) {
+            return;
+        }
+
+        for (File file : dir.listFiles()) {
+            file.renameTo(new File(dest_dir, file.getName()));
+        }
     }
 
     @NonNull

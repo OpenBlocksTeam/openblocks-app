@@ -298,6 +298,12 @@ public class ModuleManager {
     public ArrayList<Module> importModule(Context context, FileInputStream inputStream) throws IOException, JSONException {
         ArrayList<Module> modules_inside_jar = new ArrayList<>();
         File modules_dir = new File(context.getFilesDir(), "modules");
+        File modules_resources_dir = new File(context.getFilesDir(), "modules_resources");
+
+        // This folder is used to extract any resources inside the module, then will be moved to
+        // modules_resources
+        File modules_resources_tmp_dir = new File(context.getFilesDir(), "tmp_res");
+
         File jar_file = null;
 
         JSONObject manifest = null;
@@ -325,6 +331,7 @@ public class ModuleManager {
                 }
 
                 fos.close();
+
             } else if (fileName.equals("openblocks-module-manifest.json")) {
                 // Source: https://stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
                 String file_data;
@@ -339,6 +346,15 @@ public class ModuleManager {
 
                 // Read the manifest
                 manifest = new JSONObject(file_data);
+
+            } else if (fileName.startsWith("res/") && !zipEntry.isDirectory()) {
+                // This is a file on the res folder, extract them to modules_resources_tmp_dir
+                FileOutputStream extract_file = new FileOutputStream(new File(modules_resources_tmp_dir, fileName));
+
+                int length;
+                while ((length = zipInputStream.read(buffer)) != -1) {
+                    extract_file.write(buffer, 0, length);
+                }
             }
 
             // Close this ZipEntry
@@ -362,7 +378,11 @@ public class ModuleManager {
             throw new IOException("Manifest file doesn't exists");
         }
 
-        // Because the jar file isn't null, let's parse the manifest
+        // Because the jar file isn't null, let's move the resources to modules_resources
+
+        FileHelper.moveFiles(modules_resources_tmp_dir, new File(modules_resources_dir, jar_file.getName()));
+
+        // Then parse the manifest of the module
 
         // Parse the manifest
         ArrayList<Module> modules_inside_manifest = parseManifest(jar_file, manifest);

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,9 +40,12 @@ import com.openblocks.android.modman.ModuleJsonCorruptedException;
 import com.openblocks.android.modman.ModuleLoader;
 import com.openblocks.android.modman.ModuleLogger;
 import com.openblocks.android.modman.ModuleManager;
+import com.openblocks.android.modman.ModuleResourceManager;
 import com.openblocks.android.modman.models.Module;
 import com.openblocks.android.dialog.NewProjectDialog;
 import com.openblocks.moduleinterface.OpenBlocksModule;
+import com.openblocks.moduleinterface.api.OpenBlocksAPI;
+import com.openblocks.moduleinterface.api.ResourceManager;
 import com.openblocks.moduleinterface.exceptions.ParseException;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
@@ -178,6 +183,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         modules = moduleManager.getModules();
+
+        // Initialize OpenBlocksAPI ================================================================
+
+        OpenBlocksAPI.getInstance(this, new ResourceManager() {
+            @Override
+            public Bitmap getImageResource(OpenBlocksModule module, String filename) {
+                Module current_module = moduleManager.findModule(
+                        module.getType(),
+                        module_ -> module_.classpath.equals(module.getClass().getName())
+                );
+
+                if (current_module == null) {
+                    logger.fatal(module.getClass(), "openblocks-app unable to locate module " + module.getClass().getName());
+
+                    return null;
+                }
+
+                File resource = ModuleResourceManager.getResource(MainActivity.this, current_module, filename);
+
+                if (resource == null) {
+                    return null;
+                }
+
+                return BitmapFactory.decodeFile(resource.getAbsolutePath());
+            }
+
+            @Override
+            public byte[] getRawResource(OpenBlocksModule module, String filename) {
+                return new byte[0];
+            }
+
+            @Override
+            public View inflateXmlLayout(OpenBlocksModule module, String xml_filename) {
+                return null;
+            }
+        });
+
+        // Initialize OpenBlocksAPI ================================================================
 
         // Load Modules ============================================================================
 

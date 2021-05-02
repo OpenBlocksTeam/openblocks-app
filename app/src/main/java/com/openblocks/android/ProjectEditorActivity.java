@@ -2,7 +2,6 @@ package com.openblocks.android;
 
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Pair;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -37,7 +36,6 @@ import com.openblocks.moduleinterface.models.compiler.IncludedBinary;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksCode;
 import com.openblocks.moduleinterface.projectfiles.OpenBlocksLayout;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

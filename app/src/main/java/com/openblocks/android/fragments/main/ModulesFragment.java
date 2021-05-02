@@ -1,14 +1,13 @@
 package com.openblocks.android.fragments.main;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.openblocks.android.R;
 import com.openblocks.android.adapters.ModulesRecyclerViewAdapter;

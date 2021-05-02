@@ -1,23 +1,16 @@
 package com.openblocks.android.helpers;
 
 import android.content.res.Resources;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RawRes;
-import androidx.core.util.Pair;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Objects;
 
 public class FileHelper {
 

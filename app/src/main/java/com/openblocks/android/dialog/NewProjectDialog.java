@@ -6,9 +6,6 @@ import androidx.annotation.NonNull;
 
 import com.openblocks.android.R;
 import com.openblocks.moduleinterface.models.OpenBlocksProjectMetadata;
-import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
-
-import java.util.ArrayList;
 
 public class NewProjectDialog extends ProjectMetadataEditDialog {
 

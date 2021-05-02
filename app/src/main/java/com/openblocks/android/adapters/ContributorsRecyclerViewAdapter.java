@@ -19,7 +19,6 @@ import com.openblocks.android.R;
 import com.openblocks.android.models.ContributorItem;
 
 import java.lang.ref.WeakReference;
-import java.nio.file.StandardWatchEventKinds;
 import java.util.List;
 
 public class ContributorsRecyclerViewAdapter extends RecyclerView.Adapter<ContributorsRecyclerViewAdapter.ViewHolder> {

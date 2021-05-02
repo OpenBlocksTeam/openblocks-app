@@ -2,7 +2,6 @@ package com.openblocks.android.adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.text.Editable;
 import android.text.InputType;
@@ -10,14 +9,10 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,7 +21,6 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
-import com.openblocks.android.ModuleConfigActivity;
 import com.openblocks.android.R;
 import com.openblocks.moduleinterface.models.config.OpenBlocksConfig;
 import com.openblocks.moduleinterface.models.config.OpenBlocksConfigItem;

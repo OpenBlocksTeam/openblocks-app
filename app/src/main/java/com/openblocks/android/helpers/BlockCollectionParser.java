@@ -1,15 +1,11 @@
 package com.openblocks.android.helpers;
 
-import android.util.Pair;
-
 import com.openblocks.moduleinterface.OpenBlocksModule;
 import com.openblocks.moduleinterface.models.code.BlockCode;
 import com.openblocks.moduleinterface.models.code.BlockCodeNest;
 import com.openblocks.moduleinterface.models.code.ParseBlockTask;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class BlockCollectionParser {
 

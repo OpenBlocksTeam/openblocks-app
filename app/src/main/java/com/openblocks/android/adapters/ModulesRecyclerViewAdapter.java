@@ -16,7 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.openblocks.android.ModuleConfigActivity;
 import com.openblocks.android.ModuleInfoActivity;
 import com.openblocks.android.R;
 import com.openblocks.android.modman.ModuleManager;

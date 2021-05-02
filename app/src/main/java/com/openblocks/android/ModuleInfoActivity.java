@@ -9,9 +9,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.openblocks.android.databinding.ActivityModuleInfoBinding;
 import com.openblocks.android.modman.ModuleManager;
 import com.openblocks.android.modman.models.Module;
-import com.openblocks.android.databinding.ActivityModuleInfoBinding;
 
 public class ModuleInfoActivity extends AppCompatActivity {
 

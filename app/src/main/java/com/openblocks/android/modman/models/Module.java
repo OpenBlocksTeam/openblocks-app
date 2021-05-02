@@ -3,10 +3,7 @@ package com.openblocks.android.modman.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.Nullable;
-
 import com.openblocks.moduleinterface.OpenBlocksModule;
-import com.openblocks.moduleinterface.models.config.OpenBlocksConfig;
 
 import java.io.File;
 import java.util.Objects;

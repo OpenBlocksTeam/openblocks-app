@@ -1,7 +1,6 @@
 package com.openblocks.android;
 
 import android.os.Bundle;
-import android.widget.Toolbar;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;

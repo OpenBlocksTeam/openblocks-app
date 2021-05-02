@@ -83,7 +83,7 @@ public class FileHelper {
     public static byte[] readFile(File file) throws IOException {
         return readFile(file.getAbsolutePath());
     }
-    
+
     @NonNull
     public static byte[] readFile(String path) throws IOException {
         FileInputStream inputStream = new FileInputStream(path);
@@ -94,6 +94,9 @@ public class FileHelper {
         if (inputStream.read(buffer) != -1) {
             outputStream.write(buffer);
         }
+
+        inputStream.close();
+        outputStream.close();
 
         return outputStream.toByteArray();
     }

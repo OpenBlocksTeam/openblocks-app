@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private HashMap<OpenBlocksModule.Type, ArrayList<Module>> modules;
 
     private ModuleLogger logger;
+    private ModuleManager moduleManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         // TODO: SHOW A LOADING BAR / SCREEN WHEN WE'RE LOADING MODULES
-        ModuleManager moduleManager = ModuleManager.getInstance();
+        moduleManager = ModuleManager.getInstance();
 
         // Load modules
         try {
@@ -189,10 +190,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         OpenBlocksAPI.getInstance(this, new ResourceManager() {
             @Override
             public Bitmap getImageResource(OpenBlocksModule module, String filename) {
-                Module current_module = moduleManager.findModule(
-                        module.getType(),
-                        module_ -> module_.classpath.equals(module.getClass().getName())
-                );
+                Module current_module = getModule(module);
 
                 if (current_module == null) {
                     logger.fatal(module.getClass(), "openblocks-app unable to locate module " + module.getClass().getName());
@@ -211,7 +209,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             @Override
             public byte[] getRawResource(OpenBlocksModule module, String filename) {
-                return new byte[0];
+                Module current_module = getModule(module);
+
+                if (current_module == null) {
+                    logger.fatal(module.getClass(), "openblocks-app unable to locate module " + module.getClass().getName());
+
+                    return null;
+                }
+
+                File resource = ModuleResourceManager.getResource(MainActivity.this, current_module, filename);
+
+                if (resource == null) {
+                    return null;
+                }
+
+                try {
+                    // Read the file
+                    return FileHelper.readFile(resource);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+
+                    return null;
+                }
             }
 
             @Override
@@ -303,6 +323,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
+    }
+
+    /**
+     * This function is used to find module information from the specified OpenBlocksModule
+     * @param module The module
+     * @return The module information corresponding to the given module
+     */
+    private Module getModule(OpenBlocksModule module) {
+        return moduleManager.findModule(
+                module.getType(),
+                module_ -> module_.classpath.equals(module.getClass().getName())
+        );
     }
 
     // When the user clicked the "New Project" button
